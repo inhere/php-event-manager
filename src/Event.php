@@ -40,12 +40,15 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
     protected $stopPropagation = false;
 
     /**
-     * @param $name
+     * @param string|null $name
      * @param array $params
      */
-    public function __construct($name, array $params = [])
+    public function __construct($name = null, array $params = [])
     {
-        $this->name = $this->setName($name);
+        if ($name) {
+            $this->setName($name);
+        }
+
         $this->params = $params;
     }
 
@@ -181,7 +184,7 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
 
     /**
      * Get target/context from which event was triggered
-     * @return null|string|object
+     * @return null|string|mixed
      */
     public function getTarget()
     {
@@ -190,7 +193,7 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
 
     /**
      * Set the event target
-     * @param  null|string|object $target
+     * @param  null|string|mixed $target
      * @return void
      */
     public function setTarget($target)

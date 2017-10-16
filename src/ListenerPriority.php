@@ -10,10 +10,10 @@
 namespace Inhere\Event;
 
 /**
- * Class ListenerLevel
+ * Class ListenerPriority
  * @package Inhere\Event
  */
-final class ListenerLevel
+final class ListenerPriority
 {
     const MIN          = -300;
     const LOW          = -200;

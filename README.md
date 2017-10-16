@@ -2,25 +2,26 @@
 
 implement the psr-14 - Event Manager
 
-create a dispatcher
-
-```
-$dispathcer = new Dispatcher();
-```
 
 ## usage
 
-create a event instance.
+### create a dispatcher(the Event Manager)
+
+```php
+$dispathcer = new EventManager();
+```
+
+### create a event instance.
 
 - use Event
 
-```
-$event = new Event('name', [ 'some argvments ...' ]);
+```php
+$myEvent = new Event('name', [ 'some params ...' ]);
 ```
 
-- use subclass of the Event
+- or use subclass of the Event
 
-```
+```php
 // 1. create event class
 class MessageEvent extends Event
 {
@@ -32,10 +33,12 @@ class MessageEvent extends Event
 
 ```
 
-- add listener
+### add listener
 
-```
-... use
+- use closure
+
+```php
+// ... 
 
 // 2. add listener (the handler of the event) and relation to the event.
 
@@ -45,7 +48,41 @@ $dispatcher->addListener(function(Event $event) {
 }, Mailer::EVENT_MESSAGE_SENT);
 ```
 
-- trigger event
+- use class(use `__invoke` method)
+
+```php
+class MyListener 
+{
+    public function __invoke(\Inhere\Event\EventInterface $event)
+    {
+        echo "handle the event {$event->getName()}\n";
+    }
+}
+
+// add
+$dispatcher->attach(Mailer::EVENT_MESSAGE_SENT, new MyListener);
+```
+
+- use class(implements the ListenerInterface)
+
+```php
+class Listener implements ListenerInterface
+{
+    /**
+     * @param EventInterface $event
+     * @return mixed
+     */
+    public function handle(EventInterface $event)
+    {
+        // TODO: Implement handle() method.
+    }
+}
+
+// add
+$dispatcher->attach(Mailer::EVENT_MESSAGE_SENT, new MyListener);
+```
+
+### trigger event
 
 ```
 // 3. trigger 

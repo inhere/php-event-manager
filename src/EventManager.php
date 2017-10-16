@@ -31,7 +31,7 @@ class EventManager implements EventManagerInterface
 
     public function __destruct()
     {
-
+        $this->clear();
     }
 
     public function clear()
@@ -46,13 +46,13 @@ class EventManager implements EventManagerInterface
     /**
      * 添加一个不存在的事件
      * @param Event|string $event | event name
-     * @param array $args
+     * @param array $params
      * @return $this
      */
-    public function addEvent($event, array $args = [])
+    public function addEvent($event, array $params = [])
     {
         if (is_string($event)) {
-            $event = new Event(trim($event), $args);
+            $event = new Event(trim($event), $params);
         }
 
         /** @var $event Event */
@@ -66,18 +66,15 @@ class EventManager implements EventManagerInterface
     /**
      * 设定一个事件处理
      * @param string|EventInterface $event
-     * @param array $args
+     * @param array $params
      * @return $this
      */
-    public function setEvent($event, array $args = [])
+    public function setEvent($event, array $params = [])
     {
         if (is_string($event)) {
-            $event = new Event(trim($event), $args);
+            $event = new Event(trim($event), $params);
         }
 
-        /**
-         * @var $event Event
-         */
         if ($event instanceof EventInterface) {
             $this->events[$event->getName()] = $event;
         }
@@ -134,7 +131,7 @@ class EventManager implements EventManagerInterface
     /**
      * @param $events
      */
-    public function setEvents($events)
+    public function setEvents(array $events)
     {
         foreach ($events as $key => $event) {
             $this->setEvent($event);
@@ -156,7 +153,7 @@ class EventManager implements EventManagerInterface
     /**
      * Attaches a listener to an event
      * @param string $event the event to attach too
-     * @param callable $callback a callable function
+     * @param callable|ListenerInterface|mixed $callback a callable listener function
      * @param int $priority the priority at which the $callback executed
      * @return bool true on success false on failure
      */
@@ -199,7 +196,7 @@ class EventManager implements EventManagerInterface
             throw new \InvalidArgumentException('The given listener must is an object or a Closure.');
         }
 
-        $priority = ListenerLevel::NORMAL;
+        $priority = ListenerPriority::NORMAL;
 
         if (is_numeric($definition)) {
             $priority = (int)$definition;
