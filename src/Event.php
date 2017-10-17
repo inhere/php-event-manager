@@ -29,7 +29,7 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
     protected $params = [];
 
     /**
-     * @var null|string|object
+     * @var null|string|mixed
      */
     protected $target;
 
@@ -89,12 +89,20 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
 
     /**
      * set all param
-     * @param array $param
+     * @param array $params
+     */
+    public function setParams(array $params)
+    {
+        $this->params = $params;
+    }
+
+    /**
+     * @param array $params
      * @return $this
      */
-    public function setParams(array $param)
+    public function addParams(array $params)
     {
-        $this->params = $param;
+        $this->params = array_merge($this->params, $params);
 
         return $this;
     }
@@ -127,7 +135,7 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
      */
     public function addParam($name, $value)
     {
-        if (!isset($this->param[$name])) {
+        if (!isset($this->params[$name])) {
             $this->setParam($name, $value);
         }
 
@@ -159,7 +167,7 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
      */
     public function getParam($name, $default = null)
     {
-        return isset($this->param[$name]) ? $this->params[$name] : $default;
+        return $this->params[$name] ?? $default;
     }
 
     /**
@@ -168,7 +176,7 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
      */
     public function hasParam($name)
     {
-        return isset($this->param[$name]);
+        return isset($this->params[$name]);
     }
 
     /**

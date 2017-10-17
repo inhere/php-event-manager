@@ -177,18 +177,25 @@ class EventManager implements EventManagerInterface
 
     /**
      * 添加监听器 并关联到 某一个(多个)事件
-     * @param \Closure|callback $listener 监听器
+     * @param \Closure|callback|mixed $listener 监听器
      * @param array|string|int $definition 事件名，优先级设置
-     * @return $this
-     * @throws \InvalidArgumentException
-     * @example
+     * Allowed:
      *     $definition = [
-     *        'event name' => int level
+     *        'event name' => priority(int),
+     *        'event name1' => priority(int),
+     *     ]
+     * OR
+     *     $definition = [
+     *        'event name','event name1',
      *     ]
      * OR
      *     $definition = 'event name'
      * OR
-     *     $definition = 1 // The priority of the listener 监听器的优先级
+     *     // The priority of the listener 监听器的优先级
+     *     // 此时若 $listener 是个正常的类，会自动将所有的 以 `on` 开头的公共方法作为事件名称，关联到 $listener
+     *     $definition = 1
+     * @return $this
+     * @throws \InvalidArgumentException
      */
     public function addListener($listener, $definition = null)
     {
@@ -196,58 +203,62 @@ class EventManager implements EventManagerInterface
             throw new \InvalidArgumentException('The given listener must is an object or a Closure.');
         }
 
-        $priority = ListenerPriority::NORMAL;
+        $defaultPriority = ListenerPriority::NORMAL;
 
         if (is_numeric($definition)) {
-            $priority = (int)$definition;
+            $defaultPriority = (int)$definition;
             $definition = null;
         } elseif (is_string($definition)) { // 仅是个 事件名称
-            $definition = [$definition => $priority];
+            $definition = [$definition => $defaultPriority];
         } elseif ($definition instanceof EventInterface) { // 仅是个 事件对象,取出名称
-            $definition = [$definition->getName() => $priority];
+            $definition = [$definition->getName() => $defaultPriority];
         }
 
-        // 1. is a Closure or callback(String|Array)
-        if (is_callable($listener)) {
-            // 设置要将监听器关联到什么事件?
-            if (!$definition) {
-                throw new \InvalidArgumentException('Please set the listener to events associated with?');
-            }
-
+        // 1. an Array
+        if ($definition) {
             // 循环: 将 监听器 关联到 各个事件
-            foreach ($definition as $eventName => $level) {
-                $eventName = trim($eventName);
+            foreach ($definition as $name => $priority) {
+                if (is_int($name)) {
+                    if (!$priority || !is_string($priority)) {
+                        continue;
+                    }
+                    
+                    $name = $priority;
+                    $priority = $defaultPriority;
+                }
+                
+                $name = trim($name);
 
-                if (!isset($this->listeners[$eventName])) {
-                    $this->listeners[$eventName] = new ListenerQueue;
+                if (!isset($this->listeners[$name])) {
+                    $this->listeners[$name] = new ListenerQueue;
                 }
 
-                $this->listeners[$eventName]->add($listener, (int)$level);
+                $this->listeners[$name]->add($listener, $priority);
             }
 
             return $this;
         }
 
-        // 2. is a Object.
-
-        // 得到要绑定的监听器中所有方法名
-        $methods = get_class_methods($listener);
-        $eventNames = [];
-
-        // 取出所有方法列表中 需要关联的事件(方法)名
-        if ($definition) {
-            $eventNames = array_intersect($methods, array_keys($definition));
+        if (!is_object($listener) || $listener instanceof \Closure) {
+            return $this;
         }
 
+        // 2. is an Object.
+
+        // 得到要绑定的监听器中所有方法名(only public methods)
+        $methods = get_class_methods($listener);
+
         // 循环: 将 监听器 关联到 各个事件
-        foreach ($eventNames as $name) {
+        foreach ($methods as $name) {
+            if (strpos($name, 'on') !== 0) {
+                continue;
+            }
+
             if (!isset($this->listeners[$name])) {
                 $this->listeners[$name] = new ListenerQueue;
             }
 
-            $level = $definition[$name] ?? $priority;
-
-            $this->listeners[$name]->add($listener, (int)$level);
+            $this->listeners[$name]->add($listener, $definition[$name] ?? $defaultPriority);
         }
 
         return $this;
@@ -310,14 +321,14 @@ class EventManager implements EventManagerInterface
      * @param  string|EventInterface $event
      * @return int|null
      */
-    public function getListenerLevel($listener, $event)
+    public function getListenerPriority($listener, $event)
     {
         if ($event instanceof EventInterface) {
             $event = $event->getName();
         }
 
         if (isset($this->listeners[$event])) {
-            return $this->listeners[$event]->getLevel($listener);
+            return $this->listeners[$event]->getPriority($listener);
         }
 
         return null;
@@ -326,7 +337,25 @@ class EventManager implements EventManagerInterface
     /**
      * 获取事件的所有监听器
      * @param  string|EventInterface $event
-     * @return array ListenersQueue[]
+     * @return ListenerQueue|null
+     */
+    public function getListenerQueue($event)
+    {
+        if ($event instanceof EventInterface) {
+            $event = $event->getName();
+        }
+
+        if (isset($this->listeners[$event])) {
+            return $this->listeners[$event];
+        }
+
+        return null;
+    }
+
+    /**
+     * 获取事件的所有监听器
+     * @param  string|EventInterface $event
+     * @return array
      */
     public function getListeners($event)
     {
@@ -413,7 +442,7 @@ class EventManager implements EventManagerInterface
      * @param  array|mixed $argv
      * @return mixed
      */
-    public function trigger($event, $target = null, $argv = array())
+    public function trigger($event, $target = null, $argv = [])
     {
         if (!($event instanceof EventInterface)) {
             if (isset($this->events[$event])) {
@@ -425,8 +454,7 @@ class EventManager implements EventManagerInterface
 
         /** @var EventInterface $event */
         $name = $event->getName();
-        $params = array_merge($event->getParams(), $argv);
-        $event->setParams($params);
+        $event->addParams($argv);
         $event->setTarget($target);
 
         if (isset($this->listeners[$name])) {
@@ -436,14 +464,19 @@ class EventManager implements EventManagerInterface
                     break;
                 }
 
-                /** @var callable|\Closure|Callback $listener */
-                if ($listener instanceof \StdClass) {
-                    $cb = $listener->callback;
-                    $cb($event);
+                if (is_object($listener)) {
+                    if ($listener instanceof \stdClass) {
+                        $cb = $listener->callback;
+                        $cb($event);
+                    } elseif (method_exists($listener, $name)) {
+                        $listener->$name($event);
+                    } elseif ($listener instanceof ListenerInterface) {
+                        $listener->handle($event);
+                    } elseif (method_exists($listener, '__invoke')) {
+                        $listener($event);
+                    }
                 } elseif (is_callable($listener)) {
                     $listener($event);
-                } else {
-                    $listener->$name($event);
                 }
             }
         }

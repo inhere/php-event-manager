@@ -51,7 +51,7 @@ class ListenerQueue implements \IteratorAggregate, \Countable
     {
         if (!$this->has($listener)) {
             // Compute the internal priority as an array. 计算内部优先级为一个数组。
-            $priorityData = [$priority, $this->counter--];
+            $priorityData = [(int)$priority, $this->counter--];
 
             // a Callback(string|array)
             if (!is_object($listener) && is_callable($listener)) {

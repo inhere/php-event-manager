@@ -40,10 +40,25 @@ $myListener = new class {
     {
         echo "handle the event {$event->getName()}\n";
     }
+
+    const ON_DB_UPDATE = 'onDbUpdate';
+
+    public function onDbUpdate(\Inhere\Event\EventInterface $event)
+    {
+        echo "handle the event {$event->getName()}, sql: {$event->getParam('sql')}\n";
+    }
 };
 
 $mgr = new \Inhere\Event\EventManager();
 
+//
 $mgr->attach('test', $myListener);
+$evt = $mgr->trigger('test');
 
-$mgr->trigger('test');
+
+// auto bind method 'onDbUpdate'
+$mgr->addListener($myListener);
+
+$evt1 = $mgr->trigger($myListener::ON_DB_UPDATE, null, ['sql' => 'a sql string']);
+
+//var_dump($evt1);

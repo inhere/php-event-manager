@@ -35,7 +35,10 @@ class MessageEvent extends Event
 
 ### add listener
 
-- use closure
+listener allow: 
+
+- function
+- a closure
 
 ```php
 // ... 
@@ -48,7 +51,22 @@ $dispatcher->addListener(function(Event $event) {
 }, Mailer::EVENT_MESSAGE_SENT);
 ```
 
-- use class(use `__invoke` method)
+- a class
+
+```php
+class MyListener 
+{
+    public function onMessageSent(\Inhere\Event\EventInterface $event)
+    {
+        echo "handle the event {$event->getName()}\n";
+    }
+}
+
+// add
+$dispatcher->attach(Mailer::EVENT_MESSAGE_SENT, new MyListener);
+```
+
+- a class(use `__invoke` method)
 
 ```php
 class MyListener 
@@ -63,7 +81,7 @@ class MyListener
 $dispatcher->attach(Mailer::EVENT_MESSAGE_SENT, new MyListener);
 ```
 
-- use class(implements the ListenerInterface)
+- a class(implements the ListenerInterface)
 
 ```php
 class Listener implements ListenerInterface
