@@ -9,14 +9,14 @@
 namespace Inhere\Event;
 
 /**
- * Class ClassEvent
+ * Class ObjectEventTrait
  *  the Class Level Event
  *
  * @reference yii2 Event
  *
  * @package Inhere\Event
  */
-trait ObjectEvent
+trait ObjectEventTrait
 {
     /**
      * registered Events
@@ -121,7 +121,7 @@ trait ObjectEvent
         }
 
         if ($ets = $this->supportedEvents) {
-            return in_array($name, $ets, true);
+            return \in_array($name, $ets, true);
         }
 
         return true;
@@ -156,6 +156,6 @@ trait ObjectEvent
      */
     public function countEvents()
     {
-        return count($this->_events);
+        return \count($this->_events);
     }
 }

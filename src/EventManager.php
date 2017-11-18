@@ -48,10 +48,11 @@ class EventManager implements EventManagerInterface
      * @param Event|string $event | event name
      * @param array $params
      * @return $this
+     * @throws \InvalidArgumentException
      */
     public function addEvent($event, array $params = [])
     {
-        if (is_string($event)) {
+        if (\is_string($event)) {
             $event = new Event(trim($event), $params);
         }
 
@@ -68,10 +69,11 @@ class EventManager implements EventManagerInterface
      * @param string|EventInterface $event
      * @param array $params
      * @return $this
+     * @throws \InvalidArgumentException
      */
     public function setEvent($event, array $params = [])
     {
-        if (is_string($event)) {
+        if (\is_string($event)) {
             $event = new Event(trim($event), $params);
         }
 
@@ -130,6 +132,7 @@ class EventManager implements EventManagerInterface
 
     /**
      * @param $events
+     * @throws \InvalidArgumentException
      */
     public function setEvents(array $events)
     {
@@ -143,7 +146,7 @@ class EventManager implements EventManagerInterface
      */
     public function countEvents()
     {
-        return count($this->events);
+        return \count($this->events);
     }
 
     /*******************************************************************************
@@ -156,6 +159,7 @@ class EventManager implements EventManagerInterface
      * @param callable|ListenerInterface|mixed $callback a callable listener function
      * @param int $priority the priority at which the $callback executed
      * @return bool true on success false on failure
+     * @throws \InvalidArgumentException
      */
     public function attach($event, $callback, $priority = 0)
     {
@@ -199,7 +203,7 @@ class EventManager implements EventManagerInterface
      */
     public function addListener($listener, $definition = null)
     {
-        if (!is_object($listener)) {
+        if (!\is_object($listener)) {
             throw new \InvalidArgumentException('The given listener must is an object or a Closure.');
         }
 
@@ -208,7 +212,7 @@ class EventManager implements EventManagerInterface
         if (is_numeric($definition)) {
             $defaultPriority = (int)$definition;
             $definition = null;
-        } elseif (is_string($definition)) { // 仅是个 事件名称
+        } elseif (\is_string($definition)) { // 仅是个 事件名称
             $definition = [$definition => $defaultPriority];
         } elseif ($definition instanceof EventInterface) { // 仅是个 事件对象,取出名称
             $definition = [$definition->getName() => $defaultPriority];
@@ -218,15 +222,15 @@ class EventManager implements EventManagerInterface
         if ($definition) {
             // 循环: 将 监听器 关联到 各个事件
             foreach ($definition as $name => $priority) {
-                if (is_int($name)) {
-                    if (!$priority || !is_string($priority)) {
+                if (\is_int($name)) {
+                    if (!$priority || !\is_string($priority)) {
                         continue;
                     }
-                    
+
                     $name = $priority;
                     $priority = $defaultPriority;
                 }
-                
+
                 $name = trim($name);
 
                 if (!isset($this->listeners[$name])) {
@@ -239,7 +243,7 @@ class EventManager implements EventManagerInterface
             return $this;
         }
 
-        if (!is_object($listener) || $listener instanceof \Closure) {
+        if (!\is_object($listener) || $listener instanceof \Closure) {
             return $this;
         }
 
@@ -381,7 +385,7 @@ class EventManager implements EventManagerInterface
             $event = $event->getName();
         }
 
-        return isset($this->listeners[$event]) ? count($this->listeners[$event]) : 0;
+        return isset($this->listeners[$event]) ? \count($this->listeners[$event]) : 0;
     }
 
     /**
@@ -441,8 +445,9 @@ class EventManager implements EventManagerInterface
      * @param  mixed|string $target
      * @param  array|mixed $argv
      * @return mixed
+     * @throws \InvalidArgumentException
      */
-    public function trigger($event, $target = null, $argv = [])
+    public function trigger($event, $target = null, array $argv = [])
     {
         if (!($event instanceof EventInterface)) {
             if (isset($this->events[$event])) {
@@ -464,7 +469,7 @@ class EventManager implements EventManagerInterface
                     break;
                 }
 
-                if (is_object($listener)) {
+                if (\is_object($listener)) {
                     if ($listener instanceof \stdClass) {
                         $cb = $listener->callback;
                         $cb($event);
@@ -475,7 +480,7 @@ class EventManager implements EventManagerInterface
                     } elseif (method_exists($listener, '__invoke')) {
                         $listener($event);
                     }
-                } elseif (is_callable($listener)) {
+                } elseif (\is_callable($listener)) {
                     $listener($event);
                 }
             }

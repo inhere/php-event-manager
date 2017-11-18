@@ -42,6 +42,7 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
     /**
      * @param string|null $name
      * @param array $params
+     * @throws \InvalidArgumentException
      */
     public function __construct($name = null, array $params = [])
     {
@@ -55,12 +56,13 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
     /**
      * @param string $name
      * @return string
+     * @throws \InvalidArgumentException
      */
     public static function checkName(string $name)
     {
         $name = trim($name);
 
-        if (!$name || strlen($name) > 50) {
+        if (!$name || \strlen($name) > 50) {
             throw new \InvalidArgumentException('Set up the name can be a not empty string of not more than 50 characters!');
         }
 
@@ -81,6 +83,7 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
 
     /**
      * {@inheritdoc}
+     * @throws \InvalidArgumentException
      */
     public function setName($name)
     {
@@ -132,6 +135,7 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
      * @param $name
      * @param $value
      * @return $this
+     * @throws \InvalidArgumentException
      */
     public function addParam($name, $value)
     {
@@ -271,6 +275,7 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
      * @param   string $name The argument name.
      * @param   mixed $value The argument value.
      * @return  void
+     * @throws \InvalidArgumentException
      */
     public function offsetSet($name, $value)
     {

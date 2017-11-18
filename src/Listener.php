@@ -21,5 +21,6 @@ class Listener implements ListenerInterface
     public function handle(EventInterface $event)
     {
         // TODO: Implement handle() method.
+        return true;
     }
 }

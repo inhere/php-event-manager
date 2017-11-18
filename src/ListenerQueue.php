@@ -54,7 +54,7 @@ class ListenerQueue implements \IteratorAggregate, \Countable
             $priorityData = [(int)$priority, $this->counter--];
 
             // a Callback(string|array)
-            if (!is_object($listener) && is_callable($listener)) {
+            if (!\is_object($listener) && \is_callable($listener)) {
                 $callback = $listener;
                 $listener = new \stdClass;
                 $listener->callback = $callback;
@@ -177,7 +177,7 @@ class ListenerQueue implements \IteratorAggregate, \Countable
      */
     public function count()
     {
-        return count($this->queue);
+        return \count($this->queue);
     }
 
 }
