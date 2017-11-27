@@ -156,7 +156,7 @@ class EventManager implements EventManagerInterface
     /**
      * Attaches a listener to an event
      * @param string $event the event to attach too
-     * @param callable|ListenerInterface|mixed $callback a callable listener function
+     * @param callable|SingleListenerInterface|mixed $callback a callable listener function
      * @param int $priority the priority at which the $callback executed
      * @return bool true on success false on failure
      * @throws \InvalidArgumentException
@@ -475,7 +475,7 @@ class EventManager implements EventManagerInterface
                         $cb($event);
                     } elseif (method_exists($listener, $name)) {
                         $listener->$name($event);
-                    } elseif ($listener instanceof ListenerInterface) {
+                    } elseif ($listener instanceof SingleListenerInterface) {
                         $listener->handle($event);
                     } elseif (method_exists($listener, '__invoke')) {
                         $listener($event);

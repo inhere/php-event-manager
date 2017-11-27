@@ -1,8 +1,6 @@
 .idea/
 .phpintel/
 .vscode/
-vendor/
-node_modules/
 tmp/*
 !README.md
 composer.lock
@@ -11,4 +9,3 @@ composer.lock
 *.log
 .DS_Store
 .project
-dist/

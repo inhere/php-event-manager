@@ -6,28 +6,7 @@
  * Time: 下午10:35
  */
 
-error_reporting(E_ALL | E_STRICT);
-date_default_timezone_set('Asia/Shanghai');
-
-spl_autoload_register(function ($class) {
-    if (0 === strpos($class,'Inhere\Event\Examples\\')) {
-        $path = str_replace('\\', '/', substr($class, strlen('Inhere\Event\Examples\\')));
-        $file =__DIR__ . "/{$path}.php";
-
-        if (is_file($file)) {
-            include $file;
-        }
-
-    } elseif (0 === strpos($class,'Inhere\Event\\')) {
-        $path = str_replace('\\', '/', substr($class, strlen('Inhere\Event\\')));
-        $file = dirname(__DIR__) . "/src/{$path}.php";
-
-        if (is_file($file)) {
-            include $file;
-        }
-    }
-});
-
+include dirname(__DIR__) . '/tests/boot.php';
 
 $myEvent = new class extends \Inhere\Event\Event {
     protected $name = 'test';

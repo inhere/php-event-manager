@@ -57,7 +57,7 @@ class ClassEvent
         // call event handlers of the event.
         foreach ((array)self::$events[$event] as $cb) {
             // return FALSE to stop go on handle.
-            if (false === call_user_func_array($cb, $args)) {
+            if (false === \call_user_func_array($cb, $args)) {
                 break;
             }
         }
@@ -140,6 +140,6 @@ class ClassEvent
      */
     public static function countEvents()
     {
-        return count(self::$events);
+        return \count(self::$events);
     }
 }

@@ -9,10 +9,10 @@
 namespace Inhere\Event;
 
 /**
- * Class Listener
+ * Class SingleListener
  * @package Inhere\Event
  */
-class Listener implements ListenerInterface
+class SingleListener implements SingleListenerInterface
 {
     /**
      * @param EventInterface $event
