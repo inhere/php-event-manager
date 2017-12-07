@@ -15,7 +15,7 @@ use Inhere\Event\HandlerInterface;
  * Class SingleListener
  * @package Inhere\Event
  */
-class EventHandler implements HandlerInterface
+class ExamHandler implements HandlerInterface
 {
     /**
      * @param EventInterface $event
@@ -23,7 +23,9 @@ class EventHandler implements HandlerInterface
      */
     public function handle(EventInterface $event)
     {
-        // TODO: Implement handle() method.
+        $pos = __METHOD__;
+        echo "handle the event {$event->getName()} on the: $pos\n";
+
         return true;
     }
 }

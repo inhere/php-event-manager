@@ -5,17 +5,17 @@ use Inhere\Event\Event;
 use Inhere\Event\EventAwareTrait;
 use Inhere\Event\EventInterface;
 use Inhere\Event\EventManager;
-use Inhere\Event\HandlerInterface;
+use Inhere\Event\Examples\ExamHandler;
 
 require dirname(__DIR__) . '/tests/boot.php';
 
-function exam1_handler(EventInterface $event)
+function exam_handler(EventInterface $event)
 {
     $pos = __METHOD__;
     echo "handle the event {$event->getName()} on the: $pos \n";
 }
 
-class Exam2Listener
+class ExamListener1
 {
     public function messageSent(EventInterface $event)
     {
@@ -25,7 +25,7 @@ class Exam2Listener
     }
 }
 
-class Exam3Listener
+class ExamListener2
 {
     public function __invoke(EventInterface $event)
     {
@@ -34,19 +34,7 @@ class Exam3Listener
     }
 }
 
-class Exam4Handler implements HandlerInterface
-{
-    /**
-     * @param EventInterface $event
-     */
-    public function handle(EventInterface $event)
-    {
-        $pos = __METHOD__;
-        echo "handle the event {$event->getName()} on the: $pos\n";
-    }
-}
-
-// 1. create event class
+// create event class
 class MessageEvent extends Event
 {
     protected $name = 'messageSent';
@@ -76,15 +64,15 @@ class Mailer
 }
 
 $em = new EventManager();
-$em->attach('messageSent', 'exam1_handler');
+$em->attach('messageSent', 'exam_handler');
 $em->attach('messageSent', function (EventInterface $event)
 {
     $pos = __METHOD__;
     echo "handle the event {$event->getName()} on the: $pos\n";
 });
-$em->attach('messageSent', new Exam2Listener());
-$em->attach('messageSent', new Exam3Listener());
-$em->attach('messageSent', new Exam4Handler());
+$em->attach('messageSent', new ExamListener1());
+$em->attach('messageSent', new ExamListener2());
+$em->attach('messageSent', new ExamHandler());
 
 $mailer = new Mailer();
 $mailer->setEventManager($em);

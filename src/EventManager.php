@@ -205,9 +205,9 @@ class EventManager implements EventManagerInterface
     {
         // func
         if (\is_string($listener)) {
-            $listener = function (EventInterface $event) use ($listener) {
-                return $listener($event);
-            };
+            $callback = $listener;
+            $listener = new \stdClass();
+            $listener->callback = $callback;
         }
 
         if (!\is_object($listener)) {

@@ -55,7 +55,7 @@ $myEvent = new Event('name', [ 'some params ...' ]);
 这样你可以追加自定义数据
 
 ```php
-// 1. create event class
+// create event class
 class MessageEvent extends Event
 {
     protected $name = 'messageSent';
@@ -87,7 +87,7 @@ $em->addListener(function(Event $event) {
 - 一个类。里面存在跟事件相同名称的方法
 
 ```php
-class MyListener 
+class ExamListener1
 {
     public function messageSent(\Inhere\Event\EventInterface $event)
     {
@@ -102,7 +102,7 @@ $dispatcher->attach(Mailer::EVENT_MESSAGE_SENT, new MyListener);
 - 一个类(含有 `__invoke` 方法)
 
 ```php
-class MyListener 
+class ExamListener2
 {
     public function __invoke(\Inhere\Event\EventInterface $event)
     {
@@ -117,7 +117,7 @@ $dispatcher->attach(Mailer::EVENT_MESSAGE_SENT, new MyListener);
 - 一个类(implements the HandlerInterface)
 
 ```php
-class Listener implements HandlerInterface
+class ExamHandler implements HandlerInterface
 {
     /**
      * @param EventInterface $event
@@ -135,10 +135,12 @@ $dispatcher->attach(Mailer::EVENT_MESSAGE_SENT, new MyListener);
 
 ### 触发事件
 
-```
-// 3. trigger 
+```php
+// use trigger 
 class Mailer
 {
+    use EventAwareTrait;
+
     const EVENT_MESSAGE_SENT = 'messageSent';
 
     public function send($message)
@@ -149,13 +151,66 @@ class Mailer
         $event->message = $message;
         
         // trigger event
-        $dispatcher->trigger(self::EVENT_MESSAGE_SENT, $event);
+        $this->eventManager->trigger(self::EVENT_MESSAGE_SENT, $event);
     }
 }
 ```
 
+- 触发
+
+```php
+$em = new EventManager();
+$em->attach('messageSent', 'exam_handler');
+$em->attach('messageSent', function (EventInterface $event)
+{
+    $pos = __METHOD__;
+    echo "handle the event {$event->getName()} on the: $pos\n";
+});
+$em->attach('messageSent', new ExamListener1());
+$em->attach('messageSent', new ExamListener2());
+$em->attach('messageSent', new ExamHandler());
+
+$mailer = new Mailer();
+$mailer->setEventManager($em);
+
+$mailer->send('hello, world!');
+```
+
+### 运行
+
+完整的实例代码在 `examples/exam.php` 中。
+
+运行: `php examples/exam.php`
+
+输出：
+
+```text
+$ php examples/exam.php
+handle the event messageSent on the: exam_handler
+handle the event messageSent on the: {closure}
+handle the event messageSent on the: ExamListener1::messageSent
+handle the event messageSent on the: ExamListener2::__invoke
+handle the event messageSent on the: Inhere\Event\Examples\ExamHandler::handle
+
+```
+
 ## 一组事件的监听器
 
+完整的实例代码在 `examples/group.php` 中。
+
+运行: `php examples/group.php`
+
+输出：
+
+```text
+$ php examples/group.php
+handle the event app.start on the: Inhere\Event\Examples\AppListener::start
+handle the event app.beforeRequest on the: Inhere\Event\Examples\AppListener::beforeRequest
+handling ......
+handle the event app.afterRequest on the: Inhere\Event\Examples\AppListener::afterRequest
+handle the event app.stop on the: Inhere\Event\Examples\AppListener::stop
+
+```
 
 ## License 
 
