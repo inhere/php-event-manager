@@ -50,7 +50,7 @@ $em = new EventManager();
 $myEvent = new Event('name', [ 'some params ...' ]);
 ```
 
-- 使用基础了 `Event` 的子类
+- 使用继承了 `Event` 的子类
 
 这样你可以追加自定义数据
 
@@ -94,9 +94,6 @@ class ExamListener1
         echo "handle the event {$event->getName()}\n";
     }
 }
-
-// add
-$dispatcher->attach(Mailer::EVENT_MESSAGE_SENT, new MyListener);
 ```
 
 - 一个类(含有 `__invoke` 方法)
@@ -109,9 +106,6 @@ class ExamListener2
         echo "handle the event {$event->getName()}\n";
     }
 }
-
-// add
-$dispatcher->attach(Mailer::EVENT_MESSAGE_SENT, new MyListener);
 ```
 
 - 一个类(implements the HandlerInterface)
@@ -128,12 +122,9 @@ class ExamHandler implements HandlerInterface
         // TODO: Implement handle() method.
     }
 }
-
-// add
-$dispatcher->attach(Mailer::EVENT_MESSAGE_SENT, new MyListener);
 ```
 
-### 触发事件
+### 绑定事件触发
 
 ```php
 // use trigger 
@@ -156,23 +147,26 @@ class Mailer
 }
 ```
 
-- 触发
+### 触发事件
 
 ```php
 $em = new EventManager();
-$em->attach('messageSent', 'exam_handler');
-$em->attach('messageSent', function (EventInterface $event)
+
+// 绑定事件
+$em->attach(Mailer::EVENT_MESSAGE_SENT, 'exam_handler');
+$em->attach(Mailer::EVENT_MESSAGE_SENT, function (EventInterface $event)
 {
     $pos = __METHOD__;
     echo "handle the event {$event->getName()} on the: $pos\n";
 });
-$em->attach('messageSent', new ExamListener1());
-$em->attach('messageSent', new ExamListener2());
-$em->attach('messageSent', new ExamHandler());
+$em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamListener1());
+$em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamListener2());
+$em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamHandler());
 
 $mailer = new Mailer();
 $mailer->setEventManager($em);
 
+// 执行，触发事件
 $mailer->send('hello, world!');
 ```
 

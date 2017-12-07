@@ -64,15 +64,15 @@ class Mailer
 }
 
 $em = new EventManager();
-$em->attach('messageSent', 'exam_handler');
-$em->attach('messageSent', function (EventInterface $event)
+$em->attach(Mailer::EVENT_MESSAGE_SENT, 'exam_handler');
+$em->attach(Mailer::EVENT_MESSAGE_SENT, function (EventInterface $event)
 {
     $pos = __METHOD__;
     echo "handle the event {$event->getName()} on the: $pos\n";
 });
-$em->attach('messageSent', new ExamListener1());
-$em->attach('messageSent', new ExamListener2());
-$em->attach('messageSent', new ExamHandler());
+$em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamListener1());
+$em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamListener2());
+$em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamHandler());
 
 $mailer = new Mailer();
 $mailer->setEventManager($em);
