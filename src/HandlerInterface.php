@@ -12,7 +12,7 @@ namespace Inhere\Event;
  * Interface ListenerInterface
  * @package Inhere\Event
  */
-interface SingleListenerInterface
+interface HandlerInterface
 {
     /**
      * @param EventInterface $event

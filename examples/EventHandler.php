@@ -6,13 +6,16 @@
  * Time: 17:50
  */
 
-namespace Inhere\Event;
+namespace Inhere\Event\Examples;
+
+use Inhere\Event\EventInterface;
+use Inhere\Event\HandlerInterface;
 
 /**
  * Class SingleListener
  * @package Inhere\Event
  */
-class SingleListener implements SingleListenerInterface
+class EventHandler implements HandlerInterface
 {
     /**
      * @param EventInterface $event

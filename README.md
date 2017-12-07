@@ -2,24 +2,57 @@
 
 implement the psr-14 - Event Manager
 
+## 项目地址
 
-## usage
+- **github** https://github.com/inhere/php-event-manager.git
+- **git@osc** https://git.oschina.net/inhere/php-event-manager.git
 
-### create a dispatcher(the Event Manager)
+## 安装
+
+- composer 命令
 
 ```php
-$dispathcer = new EventManager();
+composer require inhere/event
 ```
 
-### create a event instance.
+- composer.json
 
-- use Event
+```json
+{
+    "require": {
+        "inhere/event": "dev-master"
+    }
+}
+```
+
+- 直接拉取
+
+```bash
+git clone https://github.com/inhere/php-event-manager.git
+```
+
+
+## 使用
+
+### 创建事件管理器
+
+创建事件管理器, 也可称之为事件调度器。
+
+```php
+$em = new EventManager();
+```
+
+### 创建一个事件
+
+- 直接简单的使用类 `Event`
 
 ```php
 $myEvent = new Event('name', [ 'some params ...' ]);
 ```
 
-- or use subclass of the Event
+- 使用基础了 `Event` 的子类
+
+这样你可以追加自定义数据
 
 ```php
 // 1. create event class
@@ -33,30 +66,30 @@ class MessageEvent extends Event
 
 ```
 
-### add listener
+### 创建监听器
 
-listener allow: 
+监听器允许是: 
 
-- function
-- a closure
+- function 函数
+- 闭包
 
 ```php
 // ... 
 
 // 2. add listener (the handler of the event) and relation to the event.
 
-$dispatcher->addListener(function(Event $event) {
+$em->addListener(function(Event $event) {
     // $message = $event->message;
     // ... some logic
 }, Mailer::EVENT_MESSAGE_SENT);
 ```
 
-- a class
+- 一个类。里面存在跟事件相同名称的方法
 
 ```php
 class MyListener 
 {
-    public function onMessageSent(\Inhere\Event\EventInterface $event)
+    public function messageSent(\Inhere\Event\EventInterface $event)
     {
         echo "handle the event {$event->getName()}\n";
     }
@@ -66,7 +99,7 @@ class MyListener
 $dispatcher->attach(Mailer::EVENT_MESSAGE_SENT, new MyListener);
 ```
 
-- a class(use `__invoke` method)
+- 一个类(含有 `__invoke` 方法)
 
 ```php
 class MyListener 
@@ -81,10 +114,10 @@ class MyListener
 $dispatcher->attach(Mailer::EVENT_MESSAGE_SENT, new MyListener);
 ```
 
-- a class(implements the ListenerInterface)
+- 一个类(implements the HandlerInterface)
 
 ```php
-class Listener implements ListenerInterface
+class Listener implements HandlerInterface
 {
     /**
      * @param EventInterface $event
@@ -100,7 +133,7 @@ class Listener implements ListenerInterface
 $dispatcher->attach(Mailer::EVENT_MESSAGE_SENT, new MyListener);
 ```
 
-### trigger event
+### 触发事件
 
 ```
 // 3. trigger 
@@ -120,3 +153,10 @@ class Mailer
     }
 }
 ```
+
+## 一组事件的监听器
+
+
+## License 
+
+MIT

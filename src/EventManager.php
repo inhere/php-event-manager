@@ -156,7 +156,7 @@ class EventManager implements EventManagerInterface
     /**
      * Attaches a listener to an event
      * @param string $event the event to attach too
-     * @param callable|SingleListenerInterface|mixed $callback a callable listener function
+     * @param callable|HandlerInterface|mixed $callback a callable listener function
      * @param int $priority the priority at which the $callback executed
      * @return bool true on success false on failure
      * @throws \InvalidArgumentException
@@ -203,8 +203,15 @@ class EventManager implements EventManagerInterface
      */
     public function addListener($listener, $definition = null)
     {
+        // func
+        if (\is_string($listener)) {
+            $listener = function (EventInterface $event) use ($listener) {
+                return $listener($event);
+            };
+        }
+
         if (!\is_object($listener)) {
-            throw new \InvalidArgumentException('The given listener must is an object or a Closure.');
+            throw new \InvalidArgumentException('The given listener must is: object or Closure.');
         }
 
         $defaultPriority = ListenerPriority::NORMAL;
@@ -243,27 +250,27 @@ class EventManager implements EventManagerInterface
             return $this;
         }
 
-        if (!\is_object($listener) || $listener instanceof \Closure) {
-            return $this;
-        }
+        // if (!\is_object($listener) || $listener instanceof \Closure) {
+        //     return $this;
+        // }
 
         // 2. is an Object.
 
         // 得到要绑定的监听器中所有方法名(only public methods)
-        $methods = get_class_methods($listener);
+        // $methods = get_class_methods($listener);
 
         // 循环: 将 监听器 关联到 各个事件
-        foreach ($methods as $name) {
-            if (strpos($name, 'on') !== 0) {
-                continue;
-            }
-
-            if (!isset($this->listeners[$name])) {
-                $this->listeners[$name] = new ListenerQueue;
-            }
-
-            $this->listeners[$name]->add($listener, $definition[$name] ?? $defaultPriority);
-        }
+        // foreach ($methods as $name) {
+        //     if (strpos($name, 'on') !== 0) {
+        //         continue;
+        //     }
+        //
+        //     if (!isset($this->listeners[$name])) {
+        //         $this->listeners[$name] = new ListenerQueue;
+        //     }
+        //
+        //     $this->listeners[$name]->add($listener, $definition[$name] ?? $defaultPriority);
+        // }
 
         return $this;
     }
@@ -441,7 +448,7 @@ class EventManager implements EventManagerInterface
     /**
      * Trigger an event
      * Can accept an EventInterface or will create one if not passed
-     * @param  string|EventInterface $event
+     * @param  string|EventInterface $event 'app.start' 'app.stop'
      * @param  mixed|string $target
      * @param  array|mixed $argv
      * @return mixed
@@ -463,29 +470,52 @@ class EventManager implements EventManagerInterface
         $event->setTarget($target);
 
         if (isset($this->listeners[$name])) {
-            // 循环调用监听器，处理事件
-            foreach ($this->listeners[$name] as $listener) {
-                if ($event->isPropagationStopped()) {
-                    break;
-                }
+            $this->fireListeners($this->listeners[$name], $event, $name);
 
-                if (\is_object($listener)) {
-                    if ($listener instanceof \stdClass) {
-                        $cb = $listener->callback;
-                        $cb($event);
-                    } elseif (method_exists($listener, $name)) {
-                        $listener->$name($event);
-                    } elseif ($listener instanceof SingleListenerInterface) {
-                        $listener->handle($event);
-                    } elseif (method_exists($listener, '__invoke')) {
-                        $listener($event);
-                    }
-                } elseif (\is_callable($listener)) {
-                    $listener($event);
-                }
+            if ($event->isPropagationStopped()) {
+                return $event;
+            }
+        }
+
+        // like 'app.start'
+        if (\strpos($name, '.')) {
+            list($name, $method) = explode('.', $name, 2);
+
+            if (isset($this->listeners[$name])) {
+                $this->fireListeners($this->listeners[$name], $event, $method);
             }
         }
 
         return $event;
+    }
+
+    /**
+     * @param array|ListenerQueue $listeners
+     * @param EventInterface $event
+     * @param null $method
+     */
+    protected function fireListeners($listeners, EventInterface $event, $method = null)
+    {
+        // 循环调用监听器，处理事件
+        foreach ($listeners as $listener) {
+            if ($event->isPropagationStopped()) {
+                break;
+            }
+
+            if (\is_object($listener)) {
+                if ($listener instanceof \stdClass) {
+                    $cb = $listener->callback;
+                    $cb($event);
+                } elseif ($method && method_exists($listener, $method)) {
+                    $listener->$method($event);
+                } elseif ($listener instanceof HandlerInterface) {
+                    $listener->handle($event);
+                } elseif (method_exists($listener, '__invoke')) {
+                    $listener($event);
+                }
+            } elseif (\is_callable($listener)) {
+                $listener($event);
+            }
+        }
     }
 }
