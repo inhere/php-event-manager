@@ -44,9 +44,7 @@ class App
 
         while ($sleep <= 5) {
             $sleep++;
-
             echo '.';
-
             sleep(1);
         }
 

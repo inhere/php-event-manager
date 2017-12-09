@@ -190,6 +190,117 @@ handle the event messageSent on the: Inhere\Event\Examples\ExamHandler::handle
 
 ## 一组事件的监听器
 
+### 一个简单的应用类
+
+```php
+
+/**
+ * Class App
+ * @package Inhere\Event\Examples
+ */
+class App
+{
+    const ON_START = 'app.start';
+    const ON_STOP = 'app.stop';
+    const ON_BEFORE_REQUEST = 'app.beforeRequest';
+    const ON_AFTER_REQUEST = 'app.afterRequest';
+
+    use EventAwareTrait;
+
+    public function __construct(EventManager $em)
+    {
+        $this->setEventManager($em);
+
+        $this->eventManager->trigger(self::ON_START, new Event('start', [
+            'key' => 'val'
+        ]));
+    }
+
+    public function run()
+    {
+        $this->eventManager->trigger(self::ON_BEFORE_REQUEST, new Event('beforeRequest'));
+
+        $sleep = 0;
+
+        echo 'handling ';
+
+        while ($sleep <= 5) {
+            $sleep++;
+
+            echo '.';
+
+            sleep(1);
+        }
+
+        echo "\n";
+
+        $this->eventManager->trigger(self::ON_AFTER_REQUEST, new Event('afterRequest'));
+    }
+
+    public function __destruct()
+    {
+        $this->eventManager->trigger(self::ON_STOP, new Event('stop', [
+            'key1' => 'val1'
+        ]));
+    }
+}
+```
+
+### 监听器类
+
+里面存在跟事件相同名称的方法
+
+```php
+
+/**
+ * Class AppListener
+ * @package Inhere\Event\Examples
+ */
+class AppListener
+{
+    public function start(EventInterface $event)
+    {
+        $pos = __METHOD__;
+        echo "handle the event {$event->getName()} on the: $pos\n";
+    }
+
+    public function beforeRequest(EventInterface $event)
+    {
+        $pos = __METHOD__;
+        echo "handle the event {$event->getName()} on the: $pos\n";
+    }
+
+    public function afterRequest(EventInterface $event)
+    {
+        $pos = __METHOD__;
+        echo "handle the event {$event->getName()} on the: $pos\n";
+    }
+
+    public function stop(EventInterface $event)
+    {
+        $pos = __METHOD__;
+        echo "handle the event {$event->getName()} on the: $pos\n";
+    }
+}
+```
+
+### 准备运行
+
+```php
+$em = new EventManager();
+
+// register a group listener
+$em->attach('app', new AppListener());
+
+// create app
+$app = new App($em);
+
+// run.
+$app->run();
+```
+
+### 执行
+
 完整的实例代码在 `examples/group.php` 中。
 
 运行: `php examples/group.php`
