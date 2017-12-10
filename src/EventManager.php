@@ -450,11 +450,11 @@ class EventManager implements EventManagerInterface
      * Can accept an EventInterface or will create one if not passed
      * @param  string|EventInterface $event 'app.start' 'app.stop'
      * @param  mixed|string $target
-     * @param  array|mixed $argv
+     * @param  array|mixed $args
      * @return mixed
      * @throws \InvalidArgumentException
      */
-    public function trigger($event, $target = null, array $argv = [])
+    public function trigger($event, $target = null, array $args = [])
     {
         if (!($event instanceof EventInterface)) {
             if (isset($this->events[$event])) {
@@ -466,7 +466,7 @@ class EventManager implements EventManagerInterface
 
         /** @var EventInterface $event */
         $name = $event->getName();
-        $event->addParams($argv);
+        $event->addParams($args);
         $event->setTarget($target);
 
         if (isset($this->listeners[$name])) {

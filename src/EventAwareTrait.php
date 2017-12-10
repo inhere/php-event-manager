@@ -34,4 +34,19 @@ trait EventAwareTrait
     {
         $this->eventManager = $eventManager;
     }
+
+    /**
+     * @param  string|EventInterface $event 'app.start' 'app.stop'
+     * @param  mixed|string $target
+     * @param  array|mixed $args
+     * @return mixed
+     */
+    public function trigger($event, $target = null, array $args = [])
+    {
+        if ($this->eventManager) {
+            return $this->eventManager->trigger($event, $target, $args);
+        }
+
+        return $event;
+    }
 }
