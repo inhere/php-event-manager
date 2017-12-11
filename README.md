@@ -1,6 +1,6 @@
 # Event manager
 
-implement the psr-14 - Event Manager
+implement the [Psr 14](https://github.com/php-fig/fig-standards/blob/master/proposed/event-manager.md) - Event Manager
 
 ## 项目地址
 
