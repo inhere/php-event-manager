@@ -9,13 +9,13 @@
 namespace Inhere\Event\Examples;
 
 use Inhere\Event\EventInterface;
-use Inhere\Event\HandlerInterface;
+use Inhere\Event\EventHandlerInterface;
 
 /**
  * Class SingleListener
  * @package Inhere\Event
  */
-class ExamHandler implements HandlerInterface
+class ExamHandler implements EventHandlerInterface
 {
     /**
      * @param EventInterface $event

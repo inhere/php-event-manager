@@ -9,7 +9,7 @@
 namespace Inhere\Event\Examples;
 
 use Inhere\Event\Event;
-use Inhere\Event\EventAwareTrait;
+use Inhere\Event\EventManagerAwareTrait;
 use Inhere\Event\EventManager;
 
 /**
@@ -23,7 +23,7 @@ class App
     const ON_BEFORE_REQUEST = 'app.beforeRequest';
     const ON_AFTER_REQUEST = 'app.afterRequest';
 
-    use EventAwareTrait;
+    use EventManagerAwareTrait;
 
     public function __construct(EventManager $em)
     {

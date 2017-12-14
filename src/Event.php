@@ -50,7 +50,9 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
             $this->setName($name);
         }
 
-        $this->params = $params;
+        if ($params) {
+            $this->params = $params;
+        }
     }
 
     /**
@@ -62,12 +64,8 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
     {
         $name = trim($name);
 
-        if (!$name || \strlen($name) > 50) {
-            throw new \InvalidArgumentException('Set up the name can be a not empty string of not more than 50 characters!');
-        }
-
-        if (!preg_match('/^\w[\w-.]{1,56}$/i', $name)) {
-            throw new \InvalidArgumentException("The service Id[$name] is invalid string！");
+        if (!$name || \strlen($name) > 64) {
+            throw new \InvalidArgumentException('Set up the name can be a not empty string of not more than 64 characters!');
         }
 
         return $name;

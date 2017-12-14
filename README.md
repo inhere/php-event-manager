@@ -301,14 +301,14 @@ $app->run();
 
 ### 执行
 
-完整的实例代码在 `examples/group.php` 中。
+完整的实例代码在 `examples/named-group.php` 中。
 
-运行: `php examples/group.php`
+运行: `php examples/named-group.php`
 
 输出：
 
 ```text
-$ php examples/group.php
+$ php examples/named-group.php
 handle the event app.start on the: Inhere\Event\Examples\AppListener::start
 handle the event app.beforeRequest on the: Inhere\Event\Examples\AppListener::beforeRequest
 handling ......

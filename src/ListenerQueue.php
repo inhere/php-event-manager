@@ -43,8 +43,8 @@ class ListenerQueue implements \IteratorAggregate, \Countable
 
     /**
      * 添加一个监听器, 增加了添加 callback(string|array)
-     * @param $listener \Closure|callable|\stdClass 监听器
-     * @param $priority integer 优先级
+     * @param \Closure|callable|\stdClass|mixed $listener  监听器
+     * @param integer $priority 优先级
      * @return $this
      */
     public function add($listener, $priority)

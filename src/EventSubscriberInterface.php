@@ -20,9 +20,9 @@ interface EventSubscriberInterface
      */
     public static function getSubscribedEvents(): array;
     // {
-    //     return array(
-    //         KernelEvents::CONTROLLER => array('onKernelController', -128),
+    //     return [
+    //         KernelEvents::CONTROLLER => ['onKernelController', ListenerPriority::LOW],
     //         KernelEvents::VIEW => 'onKernelView',
-    //     );
+    //     ];
     // }
 }

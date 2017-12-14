@@ -9,10 +9,10 @@
 namespace Inhere\Event;
 
 /**
- * Interface HandlerInterface - 单个事件的监听处理器
+ * Interface EventHandlerInterface - 单个事件的监听处理器
  * @package Inhere\Event
  */
-interface HandlerInterface
+interface EventHandlerInterface
 {
     /**
      * @param EventInterface $event

@@ -2,7 +2,7 @@
 
 
 use Inhere\Event\Event;
-use Inhere\Event\EventAwareTrait;
+use Inhere\Event\EventManagerAwareTrait;
 use Inhere\Event\EventInterface;
 use Inhere\Event\EventManager;
 use Inhere\Event\Examples\ExamHandler;
@@ -45,7 +45,7 @@ class MessageEvent extends Event
 
 class Mailer
 {
-    use EventAwareTrait;
+    use EventManagerAwareTrait;
 
     const EVENT_MESSAGE_SENT = 'messageSent';
 
