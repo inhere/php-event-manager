@@ -9,7 +9,7 @@
 namespace Inhere\Event;
 
 /**
- * Interface ListenerInterface
+ * Interface HandlerInterface - 单个事件的监听处理器
  * @package Inhere\Event
  */
 interface HandlerInterface
