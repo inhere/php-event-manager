@@ -106,6 +106,15 @@ class EventManager implements EventManagerInterface
     }
 
     /**
+     * @param EventSubscriberInterface $eventSubscriber
+     * @throws \InvalidArgumentException
+     */
+    public function addSubscriber(EventSubscriberInterface $eventSubscriber)
+    {
+        $this->addListener($eventSubscriber);
+    }
+
+    /**
      * 添加监听器 并关联到 某一个(多个)事件
      * @param \Closure|callback|mixed $listener 监听器
      * @param array|string|int $definition 事件名，优先级设置
@@ -157,16 +166,14 @@ class EventManager implements EventManagerInterface
                     $this->listeners[$name] = new ListenerQueue;
                 }
 
-                $handler = $conf;
-                $priority = $defaultPriority;
+                $queue = $this->listeners[$name];
 
-                // ['onKernelController', ListenerPriority::LOW]
-                if (\is_array($handler)) {
-                    $handler = $conf[0];
-                    $priority = $conf[1] ?? $defaultPriority;
+                if (\is_string($conf)) {
+                    $queue->add(new LazyListener([$listener, $conf]), $defaultPriority);
+                // ['onPost', ListenerPriority::LOW]
+                } elseif(\is_string($conf[0])) {
+                    $queue->add(new LazyListener([$listener, $conf[0]]), $conf[1] ?? $defaultPriority);
                 }
-
-                $this->listeners[$name]->add(new LazyListener([$listener, $handler]), $priority);
             }
 
             return $this;
