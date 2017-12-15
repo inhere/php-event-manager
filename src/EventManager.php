@@ -262,11 +262,17 @@ class EventManager implements EventManagerInterface
 
         // have matched listener
         if (isset($this->listeners[$name])) {
-            $this->triggerListeners($this->listeners[$name], $event, $name);
+            $this->triggerListeners($this->listeners[$name], $event);
 
             if ($event->isPropagationStopped()) {
                 return $event;
             }
+        }
+
+        // have matched listener in parent
+        if ($this->parent && ($listenerQueue = $this->parent->getListenerQueue($event))) {
+            $this->triggerListeners($listenerQueue, $event);
+            unset($listenerQueue);
         }
 
         // like 'app.start' 'app.db.query'
@@ -321,10 +327,10 @@ class EventManager implements EventManagerInterface
             }
 
             if (\is_object($listener)) {
-                if ($method && method_exists($listener, $method)) {
-                    $listener->$method($event);
-                } elseif ($listener instanceof EventHandlerInterface) {
+                if ($listener instanceof EventHandlerInterface) {
                     $listener->handle($event);
+                } elseif ($method && method_exists($listener, $method)) {
+                    $listener->$method($event);
                 } elseif ($callable && method_exists($listener, $name)) {
                     $listener->$name($event);
                 } elseif (method_exists($listener, '__invoke')) {
