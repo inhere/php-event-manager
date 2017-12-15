@@ -14,8 +14,13 @@ require dirname(__DIR__) . '/tests/boot.php';
 
 $em = new EventManager();
 
+$groupListener = new AppListener();
+
 // register a group listener
-$em->attach('app', new AppListener());
+$em->attach('app', $groupListener);
+
+// all `app.` prefix events will be handled by `AppListener::allEvent()`
+$em->attach('app.*', [$groupListener, 'allEvent']);
 
 // create app
 $app = new App($em);
