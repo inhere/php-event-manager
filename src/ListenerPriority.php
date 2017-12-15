@@ -4,13 +4,12 @@
  * User: inhere
  * Date: 16/8/27
  * Time: 下午12:37
- * Use : 监听器优先级级别 部分常量
  */
 
 namespace Inhere\Event;
 
 /**
- * Class ListenerPriority
+ * Class ListenerPriority - 监听器优先级级别 部分常量
  * @package Inhere\Event
  */
 final class ListenerPriority
@@ -23,4 +22,4 @@ final class ListenerPriority
     const HIGH         = 200;
     const MAX          = 300;
 
-}// end class ListenerLevel
+}

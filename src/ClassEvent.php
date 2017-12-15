@@ -44,7 +44,7 @@ class ClassEvent
 
     /**
      * trigger event
-     * @param $event
+     * @param string $event
      * @param array $args
      * @return bool
      */
@@ -57,7 +57,7 @@ class ClassEvent
         // call event handlers of the event.
         foreach ((array)self::$events[$event] as $cb) {
             // return FALSE to stop go on handle.
-            if (false === \call_user_func_array($cb, $args)) {
+            if (false === $cb(...$args)) {
                 break;
             }
         }

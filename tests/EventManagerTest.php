@@ -6,6 +6,10 @@
  * Time: 9:47
  */
 
+namespace Inhere\Event\Tests;
+
+use Inhere\Event\EventManager;
+use Inhere\Event\EventManagerInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -13,5 +17,10 @@ use PHPUnit\Framework\TestCase;
  */
 class EventManagerTest extends TestCase
 {
+    public function testCreate()
+    {
+        $em = new EventManager();
 
+        $this->assertInstanceOf(EventManagerInterface::class, $em);
+    }
 }

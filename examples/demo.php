@@ -12,7 +12,7 @@ require dirname(__DIR__) . '/tests/boot.php';
 function exam_handler(EventInterface $event)
 {
     $pos = __METHOD__;
-    echo "handle the event {$event->getName()} on the: $pos \n";
+    echo "handle the event '{$event->getName()}' on the: $pos \n";
 }
 
 class ExamListener1
@@ -21,7 +21,7 @@ class ExamListener1
     {
         $pos = __METHOD__;
 
-        echo "handle the event {$event->getName()} on the: $pos \n";
+        echo "handle the event '{$event->getName()}' on the: $pos \n";
     }
 }
 
@@ -30,7 +30,7 @@ class ExamListener2
     public function __invoke(EventInterface $event)
     {
         $pos = __METHOD__;
-        echo "handle the event {$event->getName()} on the: $pos\n";
+        echo "handle the event '{$event->getName()}' on the: $pos\n";
     }
 }
 
@@ -53,11 +53,11 @@ class Mailer
     {
         // ...发送 $message 的逻辑...
 
-        $event = new MessageEvent;
+        $event = new MessageEvent(self::EVENT_MESSAGE_SENT);
         $event->message = $message;
 
         // trigger event
-        $this->eventManager->trigger(self::EVENT_MESSAGE_SENT, $event);
+        $this->eventManager->trigger($event);
 
         // var_dump($event);
     }
@@ -68,9 +68,9 @@ $em->attach(Mailer::EVENT_MESSAGE_SENT, 'exam_handler');
 $em->attach(Mailer::EVENT_MESSAGE_SENT, function (EventInterface $event)
 {
     $pos = __METHOD__;
-    echo "handle the event {$event->getName()} on the: $pos\n";
+    echo "handle the event '{$event->getName()}' on the: $pos\n";
 });
-$em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamListener1());
+$em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamListener1(), 10);
 $em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamListener2());
 $em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamHandler());
 

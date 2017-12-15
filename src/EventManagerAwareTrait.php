@@ -41,7 +41,7 @@ trait EventManagerAwareTrait
         $this->eventManager = $eventManager;
 
         if (method_exists($this, 'attachDefaultListeners')) {
-            $this->attachDefaultListeners();
+            $this->attachDefaultListeners($eventManager);
         }
     }
 

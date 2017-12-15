@@ -4,28 +4,21 @@
  * User: inhere
  * Date: 16/8/27
  * Time: 下午12:34
- * reference windwalker https://github.com/ventoviro/windwalker
+ * @link windwalker https://github.com/ventoviro/windwalker
  */
 
 namespace Inhere\Event;
 
-//use Inhere\Library\StdObject;
-
 /**
  * Class Event
- * @package Inhere\LibraryPlus\Event
+ * @package Inhere\Event
  */
 class Event implements EventInterface, \ArrayAccess, \Serializable
 {
-    /**
-     * @var string 当前的事件名称
-     */
+    /** @var string Event name */
     protected $name;
 
-    /**
-     * 参数
-     * @var array
-     */
+    /** @var array Event params */
     protected $params = [];
 
     /**
@@ -62,7 +55,7 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
      */
     public static function checkName(string $name)
     {
-        $name = trim($name);
+        $name = trim($name, '. ');
 
         if (!$name || \strlen($name) > 64) {
             throw new \InvalidArgumentException('Set up the name can be a not empty string of not more than 64 characters!');
@@ -89,7 +82,7 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
     }
 
     /**
-     * set all param
+     * set all params
      * @param array $params
      */
     public function setParams(array $params)

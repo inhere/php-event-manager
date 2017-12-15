@@ -31,65 +31,51 @@ composer require inhere/event
 git clone https://github.com/inhere/php-event-manager.git
 ```
 
+### 事件管理器
 
-## 使用
-
-### 创建事件管理器
-
-创建事件管理器, 也可称之为事件调度器。
+事件管理器, 也可称之为事件调度器。 事件的注册、调度(触发)都是由它管理的。
 
 ```php
 $em = new EventManager();
 ```
 
-### 创建一个事件
-
-- 直接简单的使用类 `Event`
-
-```php
-$myEvent = new Event('name', [ 'some params ...' ]);
-```
-
-- 使用继承了 `Event` 的子类
-
-这样你可以追加自定义数据
-
-```php
-// create event class
-class MessageEvent extends Event
-{
-    protected $name = 'messageSent';
-    
-    // append property ... 
-    public $message;
-}
-
-```
-
-### 创建监听器
+## 事件监听器
 
 监听器允许是: 
 
-- function 函数
-- 闭包
+1. function 函数
+2. 一个闭包
+3. 一个监听器类(可以有多种方式)
+
+### function
 
 ```php
 // ... 
 
-// 2. add listener (the handler of the event) and relation to the event.
-
-$em->addListener(function(Event $event) {
-    // $message = $event->message;
-    // ... some logic
-}, Mailer::EVENT_MESSAGE_SENT);
+$em->attach(Mailer::EVENT_MESSAGE_SENT, 'my_function');
 ```
 
-- 一个类。里面存在跟事件相同名称的方法
+### 闭包
+
+```php
+// ... 
+
+$em->attach(Mailer::EVENT_MESSAGE_SENT, function(Event $event) {
+    // $message = $event->message;
+    // ... some logic
+});
+```
+
+### 监听器类
+
+- 类里面存在跟事件相同名称的方法
+
+> 此种方式可以在类里面写多个事件的处理方法
 
 ```php
 class ExamListener1
 {
-    public function messageSent(\Inhere\Event\EventInterface $event)
+    public function messageSent(EventInterface $event)
     {
         echo "handle the event {$event->getName()}\n";
     }
@@ -98,20 +84,24 @@ class ExamListener1
 
 - 一个类(含有 `__invoke` 方法)
 
+> 此时这个类对象就相当于一个闭包
+
 ```php
 class ExamListener2
 {
-    public function __invoke(\Inhere\Event\EventInterface $event)
+    public function __invoke(EventInterface $event)
     {
         echo "handle the event {$event->getName()}\n";
     }
 }
 ```
 
-- 一个类(implements the HandlerInterface)
+- 实现接口 EventHandlerInterface
+
+触发时会自动调用 `handle()` 方法。
 
 ```php
-class ExamHandler implements HandlerInterface
+class ExamHandler implements EventHandlerInterface
 {
     /**
      * @param EventInterface $event
@@ -124,13 +114,22 @@ class ExamHandler implements HandlerInterface
 }
 ```
 
+## 快速使用
+
 ### 绑定事件触发
 
 ```php
-// use trigger 
+// a pre-defined event
+class MessageEvent extends Event
+{
+    // append property ... 
+    public $message;
+}
+
+// in the business
 class Mailer
 {
-    use EventAwareTrait;
+    use EventManagerAwareTrait;
 
     const EVENT_MESSAGE_SENT = 'messageSent';
 
@@ -138,11 +137,11 @@ class Mailer
     {
         // ...发送 $message 的逻辑...
 
-        $event = new MessageEvent;
+        $event = new MessageEvent(self::EVENT_MESSAGE_SENT);
         $event->message = $message;
         
-        // trigger event
-        $this->eventManager->trigger(self::EVENT_MESSAGE_SENT, $event);
+        // 事件触发
+        $this->eventManager->trigger($event);
     }
 }
 ```
@@ -159,38 +158,42 @@ $em->attach(Mailer::EVENT_MESSAGE_SENT, function (EventInterface $event)
     $pos = __METHOD__;
     echo "handle the event {$event->getName()} on the: $pos\n";
 });
-$em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamListener1());
+
+// 这里给它设置了更高的优先级
+$em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamListener1(), 10);
 $em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamListener2());
 $em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamHandler());
 
 $mailer = new Mailer();
 $mailer->setEventManager($em);
 
-// 执行，触发事件
+// 执行，将会触发事件
 $mailer->send('hello, world!');
 ```
 
 ### 运行
 
-完整的实例代码在 `examples/exam.php` 中。
+完整的实例代码在 `examples/demo.php` 中。
 
-运行: `php examples/exam.php`
+运行: `php examples/demo.php`
 
 输出：
 
 ```text
 $ php examples/exam.php
-handle the event messageSent on the: exam_handler
-handle the event messageSent on the: {closure}
-handle the event messageSent on the: ExamListener1::messageSent
-handle the event messageSent on the: ExamListener2::__invoke
-handle the event messageSent on the: Inhere\Event\Examples\ExamHandler::handle
+handle the event 'messageSent' on the: ExamListener1::messageSent // 更高优先级的先调用
+handle the event 'messageSent' on the: exam_handler
+handle the event 'messageSent' on the: {closure}
+handle the event 'messageSent' on the: ExamListener2::__invoke
+handle the event 'messageSent' on the: Inhere\Event\Examples\ExamHandler::handle
 
 ```
 
 ## 一组事件的监听器
 
-### 一个简单的应用类
+- **事件分组**  推荐将相关的事件，在名称设计上进行分组
+
+### 一个简单的示例应用类
 
 ```php
 
@@ -221,19 +224,14 @@ class App
         $this->eventManager->trigger(self::ON_BEFORE_REQUEST, new Event('beforeRequest'));
 
         $sleep = 0;
-
         echo 'handling ';
-
-        while ($sleep <= 5) {
+        while ($sleep <= 3) {
             $sleep++;
-
             echo '.';
-
             sleep(1);
         }
 
         echo "\n";
-
         $this->eventManager->trigger(self::ON_AFTER_REQUEST, new Event('afterRequest'));
     }
 
@@ -246,7 +244,7 @@ class App
 }
 ```
 
-### 监听器类
+### 此应用的监听器类
 
 里面存在跟事件相同名称的方法
 
@@ -314,6 +312,32 @@ handle the event app.beforeRequest on the: Inhere\Event\Examples\AppListener::be
 handling ......
 handle the event app.afterRequest on the: Inhere\Event\Examples\AppListener::afterRequest
 handle the event app.stop on the: Inhere\Event\Examples\AppListener::stop
+
+```
+
+## 事件对象
+
+### 预先创建一个事件
+
+- 直接简单的使用类 `Event`
+
+```php
+$myEvent = new Event('name', [ 'some params ...' ]);
+```
+
+- 使用继承了 `Event` 的子类
+
+这样你可以追加自定义数据
+
+```php
+// create event class
+class MessageEvent extends Event
+{
+    protected $name = 'messageSent';
+    
+    // append property ... 
+    public $message;
+}
 
 ```
 

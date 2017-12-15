@@ -42,7 +42,7 @@ class App
 
         echo 'handling ';
 
-        while ($sleep <= 5) {
+        while ($sleep <= 3) {
             $sleep++;
             echo '.';
             sleep(1);

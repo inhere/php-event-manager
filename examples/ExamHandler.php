@@ -24,7 +24,7 @@ class ExamHandler implements EventHandlerInterface
     public function handle(EventInterface $event)
     {
         $pos = __METHOD__;
-        echo "handle the event {$event->getName()} on the: $pos\n";
+        echo "handle the event '{$event->getName()}' on the: $pos\n";
 
         return true;
     }

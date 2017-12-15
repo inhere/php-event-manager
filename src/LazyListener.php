@@ -9,7 +9,7 @@
 namespace Inhere\Event;
 
 /**
- * Class LazyListener
+ * Class LazyListener - 将callable包装成对象
  * @package Inhere\Event
  */
 class LazyListener implements EventHandlerInterface
@@ -31,5 +31,13 @@ class LazyListener implements EventHandlerInterface
     public function handle(EventInterface $event)
     {
         return ($this->callback)($event);
+    }
+
+    /**
+     * @return callable
+     */
+    public function getCallback()
+    {
+        return $this->callback;
     }
 }

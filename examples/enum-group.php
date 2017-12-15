@@ -7,13 +7,14 @@
  */
 
 use Inhere\Event\EventManager;
+use Inhere\Event\Examples\EnumGroupListener;
 
 require dirname(__DIR__) . '/tests/boot.php';
 
 $em = new EventManager();
 
 // register a group listener
-$em->addListener(new \Inhere\Event\Examples\EnumGroupListener());
+$em->addListener(new EnumGroupListener());
 
 $demo = new class
 {
@@ -21,11 +22,13 @@ $demo = new class
 
     public function run()
     {
-        $this->eventManager->trigger(\Inhere\Event\Examples\EnumGroupListener::TEST_EVENT);
+        $this->eventManager->trigger(EnumGroupListener::TEST_EVENT);
 
+        echo '.';
         sleep(1);
+        echo ".\n";
 
-        $this->eventManager->trigger(\Inhere\Event\Examples\EnumGroupListener::POST_EVENT);
+        $this->eventManager->trigger(EnumGroupListener::POST_EVENT);
     }
 };
 
