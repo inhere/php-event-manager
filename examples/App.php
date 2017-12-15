@@ -36,18 +36,15 @@ class App
 
     public function run()
     {
+        $sleep = 0;
         $this->eventManager->trigger(self::ON_BEFORE_REQUEST, new Event('beforeRequest'));
 
-        $sleep = 0;
-
-        echo 'handling ';
-
+        echo 'request handling ';
         while ($sleep <= 3) {
             $sleep++;
             echo '.';
             sleep(1);
         }
-
         echo "\n";
 
         $this->eventManager->trigger(self::ON_AFTER_REQUEST, new Event('afterRequest'));

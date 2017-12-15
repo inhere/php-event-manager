@@ -13,6 +13,10 @@ use Inhere\Event\EventInterface;
 use Inhere\Event\EventSubscriberInterface;
 use Inhere\Event\ListenerPriority;
 
+/**
+ * Class EnumGroupListener
+ * @package Inhere\Event\Examples
+ */
 class EnumGroupListener implements EventSubscriberInterface
 {
     const TEST_EVENT = 'test';

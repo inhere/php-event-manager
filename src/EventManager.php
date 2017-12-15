@@ -42,13 +42,13 @@ class EventManager implements EventManagerInterface
      */
     protected $listeners = [];
 
-    /**
+    /*
      * 含有通配符的监听器存储 eg 'db.*'
      * - '*' 只有这一个字符时，所有的事件处理都会经过它
      * - 'db.*' 触发有 'db.' 前缀的事件也都会经过 'db.*' 的监听器处理
      * @var array
      */
-    protected $wildcards = [];
+    // protected $wildcards = [];
 
     /**
      * EventManager constructor.
@@ -127,7 +127,6 @@ class EventManager implements EventManagerInterface
      *     $definition = 'event name'
      * OR
      *     // The priority of the listener 监听器的优先级
-     *     // 此时若 $listener 是个正常的类，会自动将所有的 以 `on` 开头的公共方法作为事件名称，关联到 $listener
      *     $definition = 1
      * @return bool
      */
@@ -135,7 +134,13 @@ class EventManager implements EventManagerInterface
     {
         // ensure $listener is a object.
         if (!\is_object($listener)) {
-            $listener = new LazyListener($listener);
+            if (\is_string($listener) && \class_exists($listener)) {
+                $listener = new $listener;
+
+                // like 'function' OR '[object, method]'
+            } else {
+                $listener = new LazyListener($listener);
+            }
         }
 
         $defaultPriority = ListenerPriority::NORMAL;
@@ -159,8 +164,8 @@ class EventManager implements EventManagerInterface
 
                 if (\is_string($conf)) {
                     $queue->add(new LazyListener([$listener, $conf]), $defaultPriority);
-                // ['onPost', ListenerPriority::LOW]
-                } elseif(\is_string($conf[0])) {
+                    // ['onPost', ListenerPriority::LOW]
+                } elseif (\is_string($conf[0])) {
                     $queue->add(new LazyListener([$listener, $conf[0]]), $conf[1] ?? $defaultPriority);
                 }
             }
@@ -180,7 +185,7 @@ class EventManager implements EventManagerInterface
                     $priority = $defaultPriority;
                 }
 
-                if (!$name = trim($name)) {
+                if (!$name = trim($name, '. ')) {
                     continue;
                 }
 
@@ -240,7 +245,6 @@ class EventManager implements EventManagerInterface
             if (isset($this->events[$event])) {
                 $event = $this->events[$event];
             } else {
-                // $event = new Event($event);
                 $event = $this->wrapperEvent($event);
             }
         }
@@ -256,6 +260,7 @@ class EventManager implements EventManagerInterface
         // Initial value of stop propagation flag should be false
         $event->stopPropagation(false);
 
+        // have matched listener
         if (isset($this->listeners[$name])) {
             $this->triggerListeners($this->listeners[$name], $event, $name);
 
@@ -264,11 +269,12 @@ class EventManager implements EventManagerInterface
             }
         }
 
-        // like 'app.start'
-        if (\strpos($name, '.')) {
-            list($prefix, $method) = explode('.', $name, 2);
+        // like 'app.start' 'app.db.query'
+        if ($pos = \strrpos($name, '.')) {
+            $prefix = substr($name, 0, $pos);
+            $method = substr($name, $pos + 1);
 
-            // a group listener.
+            // have a group listener. eg 'app'
             if (isset($this->listeners[$prefix])) {
                 $this->triggerListeners($this->listeners[$prefix], $event, $method);
             }
@@ -277,7 +283,7 @@ class EventManager implements EventManagerInterface
                 return $event;
             }
 
-            // a wildcards listener. eg 'app.*'
+            // have a wildcards listener. eg 'app.*'
             $wildcardEvent = $prefix . '.*';
 
             if (isset($this->listeners[$wildcardEvent])) {
@@ -289,7 +295,7 @@ class EventManager implements EventManagerInterface
             }
         }
 
-        // global wildcards '*'
+        // have global wildcards '*' listener.
         if (isset($this->listeners['*'])) {
             $this->triggerListeners($this->listeners['*'], $event);
         }
@@ -306,6 +312,7 @@ class EventManager implements EventManagerInterface
     {
         // $handled = false;
         $name = $event->getName();
+        $callable = false === \strpos($name, '.');
 
         // 循环调用监听器，处理事件
         foreach ($listeners as $listener) {
@@ -318,7 +325,7 @@ class EventManager implements EventManagerInterface
                     $listener->$method($event);
                 } elseif ($listener instanceof EventHandlerInterface) {
                     $listener->handle($event);
-                } elseif (method_exists($listener, $name)) {
+                } elseif ($callable && method_exists($listener, $name)) {
                     $listener->$name($event);
                 } elseif (method_exists($listener, '__invoke')) {
                     $listener($event);
@@ -329,10 +336,10 @@ class EventManager implements EventManagerInterface
         }
     }
 
-    protected function collectListeners(EventInterface $event)
-    {
-        // $name = $event->getName();
-    }
+    // protected function collectListeners(EventInterface $event)
+    // {
+    //     // $name = $event->getName();
+    // }
 
     /**
      * 是否存在 对事件的 监听队列

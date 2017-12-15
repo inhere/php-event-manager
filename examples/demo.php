@@ -29,6 +29,7 @@ class ExamListener2
 {
     public function __invoke(EventInterface $event)
     {
+        // $event->stopPropagation(true);
         $pos = __METHOD__;
         echo "handle the event '{$event->getName()}' on the: $pos\n";
     }
@@ -37,8 +38,6 @@ class ExamListener2
 // create event class
 class MessageEvent extends Event
 {
-    protected $name = 'messageSent';
-
     // append property ...
     public $message = 'oo a text';
 }
@@ -64,6 +63,7 @@ class Mailer
 }
 
 $em = new EventManager();
+
 $em->attach(Mailer::EVENT_MESSAGE_SENT, 'exam_handler');
 $em->attach(Mailer::EVENT_MESSAGE_SENT, function (EventInterface $event)
 {
@@ -73,6 +73,11 @@ $em->attach(Mailer::EVENT_MESSAGE_SENT, function (EventInterface $event)
 $em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamListener1(), 10);
 $em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamListener2());
 $em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamHandler());
+
+$em->attach('*', function (EventInterface $event)
+{
+    echo "handle the event '{$event->getName()}' on the global listener.\n";
+});
 
 $mailer = new Mailer();
 $mailer->setEventManager($em);

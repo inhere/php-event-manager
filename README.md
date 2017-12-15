@@ -1,6 +1,11 @@
 # Event manager
 
-implement the [Psr 14](https://github.com/php-fig/fig-standards/blob/master/proposed/event-manager.md) - Event Manager
+简单的事件管理
+
+- implement the [Psr 14](https://github.com/php-fig/fig-standards/blob/master/proposed/event-manager.md) - Event Manager
+- 支持设置事件优先级
+- 支持快速的事件组注册
+- 支持通配符事件的监听
 
 ## 项目地址
 
@@ -36,6 +41,8 @@ git clone https://github.com/inhere/php-event-manager.git
 事件管理器, 也可称之为事件调度器。 事件的注册、调度(触发)都是由它管理的。
 
 ```php
+use Inhere\Event\EventManager;
+
 $em = new EventManager();
 ```
 
@@ -96,7 +103,7 @@ class ExamListener2
 }
 ```
 
-- 实现接口 EventHandlerInterface
+- 实现接口 `EventHandlerInterface`
 
 触发时会自动调用 `handle()` 方法。
 
@@ -171,7 +178,7 @@ $mailer->setEventManager($em);
 $mailer->send('hello, world!');
 ```
 
-### 运行
+### 运行示例
 
 完整的实例代码在 `examples/demo.php` 中。
 
@@ -191,7 +198,28 @@ handle the event 'messageSent' on the: Inhere\Event\Examples\ExamHandler::handle
 
 ## 一组事件的监听器
 
+除了一些特殊的事件外，在一个应用中，大多数事件是有关联的，此时我们就可以对事件进行分组，方便识别和管理使用。
+
 - **事件分组**  推荐将相关的事件，在名称设计上进行分组
+
+例如：
+
+```text
+// 模型相关：
+model.insert
+model.update
+model.delete
+
+// DB相关：
+db.connect
+db.disconnect
+db.query
+
+// 应用相关：
+app.start
+app.run
+app.stop
+```
 
 ### 一个简单的示例应用类
 
@@ -203,12 +231,12 @@ handle the event 'messageSent' on the: Inhere\Event\Examples\ExamHandler::handle
  */
 class App
 {
+    use EventManagerAwareTrait;
+    
     const ON_START = 'app.start';
     const ON_STOP = 'app.stop';
     const ON_BEFORE_REQUEST = 'app.beforeRequest';
     const ON_AFTER_REQUEST = 'app.afterRequest';
-
-    use EventAwareTrait;
 
     public function __construct(EventManager $em)
     {
@@ -246,7 +274,11 @@ class App
 
 ### 此应用的监听器类
 
-里面存在跟事件相同名称的方法
+将每个事件的监听器写一个类，显得有些麻烦。我们可以只写一个类用里面不同的方法来处理不同的事件。
+
+- 方式一： **类里面存在跟事件名称相同的方法**(`app.start` -> `start()`)
+
+这种方式简单快捷，但是限定较死。
 
 ```php
 
@@ -282,7 +314,52 @@ class AppListener
 }
 ```
 
-### 准备运行
+- 方式二：实现接口 `EventSubscriberInterface`
+
+有时候我们并不想将处理方法定义成事件名称一样，想自定义。
+
+此时我们可以实现接口 `EventSubscriberInterface`，通过里面的 `getSubscribedEvents()` 来自定义事件和对应的处理方法
+
+> 运行示例请看 `examples/enum-group.php`
+
+```php
+/**
+ * Class EnumGroupListener
+ * @package Inhere\Event\Examples
+ */
+class EnumGroupListener implements EventSubscriberInterface
+{
+    const TEST_EVENT = 'test';
+    const POST_EVENT = 'post';
+
+    /**
+     * 配置事件与对应的处理方法
+     * @return array
+     */
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            self::TEST_EVENT => 'onTest',
+            self::POST_EVENT => ['onPost', ListenerPriority::LOW], // 还可以配置优先级
+        ];
+    }
+
+    public function onTest(EventInterface $event)
+    {
+        $pos = __METHOD__;
+        echo "handle the event {$event->getName()} on the: $pos\n";
+    }
+
+    public function onPost(EventInterface $event)
+    {
+        $pos = __METHOD__;
+        echo "handle the event {$event->getName()} on the: $pos\n";
+    }
+}
+
+```
+
+### 添加监听
 
 ```php
 $em = new EventManager();
@@ -297,9 +374,9 @@ $app = new App($em);
 $app->run();
 ```
 
-### 执行
+### 运行示例
 
-完整的实例代码在 `examples/named-group.php` 中。
+完整的示例代码在 `examples/named-group.php` 中。
 
 运行: `php examples/named-group.php`
 
@@ -307,22 +384,86 @@ $app->run();
 
 ```text
 $ php examples/named-group.php
-handle the event app.start on the: Inhere\Event\Examples\AppListener::start
-handle the event app.beforeRequest on the: Inhere\Event\Examples\AppListener::beforeRequest
-handling ......
-handle the event app.afterRequest on the: Inhere\Event\Examples\AppListener::afterRequest
-handle the event app.stop on the: Inhere\Event\Examples\AppListener::stop
+handle the event 'app.start' on the: Inhere\Event\Examples\AppListener::start
+handle the event 'app.beforeRequest' on the: Inhere\Event\Examples\AppListener::beforeRequest
+request handling ....
+handle the event 'app.afterRequest' on the: Inhere\Event\Examples\AppListener::afterRequest
+handle the event 'app.stop' on the: Inhere\Event\Examples\AppListener::stop
+
+```
+
+## 事件通配符 `*`
+
+支持使用事件通配符 `*` 对一组相关的事件进行监听, 分两种。
+
+1. `*` 全局的事件通配符。直接对 `*` 添加监听器(`$em->attach('*', 'global_listener')`), 此时所有触发的事件都会被此监听器接收到。
+2. `{prefix}.*` 指定分组事件的监听。eg `$em->attach('db.*', 'db_listener')`, 此时所有触发的以 `db.` 为前缀的事件(eg `db.query` `db.connect`)都会被此监听器接收到。
+
+> 当然，你在事件到达监听器前停止了本次事件的传播`$event->stopPropagation(true);`，就不会被后面的监听器接收到了。
+
+示例，在上面的组事件监听器改下，添加一个 `app.*` 的事件监听。
+
+```php
+// AppListener 新增一个方法
+class AppListener
+{
+    // ...
+
+    public function allEvent(EventInterface $event)
+    {
+        $pos = __METHOD__;
+        echo "handle the event '{$event->getName()}' on the: $pos\n";
+    }
+}
+
+// ...
+
+$em = new EventManager();
+
+$groupListener = new AppListener();
+
+// register a group listener
+$em->attach('app', $groupListener);
+
+// all `app.` prefix events will be handled by `AppListener::allEvent()`
+$em->attach('app.*', [$groupListener, 'allEvent']);
+
+// create app
+$app = new App($em);
+
+// run.
+$app->run();
+```
+
+### 运行示例
+
+运行: `php examples/named-group.php`
+输出：(_可以看到每个事件都经过了`AppListener::allEvent()`的处理_)
+
+```text
+$ php examples/named-group.php
+handle the event 'app.start' on the: Inhere\Event\Examples\AppListener::start
+handle the event 'app.start' on the: Inhere\Event\Examples\AppListener::allEvent
+handle the event 'app.beforeRequest' on the: Inhere\Event\Examples\AppListener::beforeRequest
+handle the event 'app.beforeRequest' on the: Inhere\Event\Examples\AppListener::allEvent
+request handling ....
+handle the event 'app.afterRequest' on the: Inhere\Event\Examples\AppListener::afterRequest
+handle the event 'app.afterRequest' on the: Inhere\Event\Examples\AppListener::allEvent
+handle the event 'app.stop' on the: Inhere\Event\Examples\AppListener::stop
+handle the event 'app.stop' on the: Inhere\Event\Examples\AppListener::allEvent
 
 ```
 
 ## 事件对象
+
+事件对象 - 装载了在触发事件时相关的上下文信息，用户自定义的。
 
 ### 预先创建一个事件
 
 - 直接简单的使用类 `Event`
 
 ```php
-$myEvent = new Event('name', [ 'some params ...' ]);
+$myEvent = new Event('name', 'target', [ 'some params ...' ]);
 ```
 
 - 使用继承了 `Event` 的子类
