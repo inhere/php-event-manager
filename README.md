@@ -237,35 +237,35 @@ class App
     const ON_STOP = 'app.stop';
     const ON_BEFORE_REQUEST = 'app.beforeRequest';
     const ON_AFTER_REQUEST = 'app.afterRequest';
-
+    
     public function __construct(EventManager $em)
     {
         $this->setEventManager($em);
 
-        $this->eventManager->trigger(self::ON_START, new Event('start', [
+        $this->eventManager->trigger(new Event(self::ON_START, [
             'key' => 'val'
         ]));
     }
 
     public function run()
     {
-        $this->eventManager->trigger(self::ON_BEFORE_REQUEST, new Event('beforeRequest'));
-
         $sleep = 0;
-        echo 'handling ';
+        $this->eventManager->trigger(self::ON_BEFORE_REQUEST);
+
+        echo 'request handling ';
         while ($sleep <= 3) {
             $sleep++;
             echo '.';
             sleep(1);
         }
-
         echo "\n";
-        $this->eventManager->trigger(self::ON_AFTER_REQUEST, new Event('afterRequest'));
+
+        $this->eventManager->trigger(self::ON_AFTER_REQUEST);
     }
 
     public function __destruct()
     {
-        $this->eventManager->trigger(self::ON_STOP, new Event('stop', [
+        $this->eventManager->trigger(new Event(self::ON_STOP, [
             'key1' => 'val1'
         ]));
     }

@@ -18,18 +18,19 @@ use Inhere\Event\EventManager;
  */
 class App
 {
+    use EventManagerAwareTrait;
+
     const ON_START = 'app.start';
     const ON_STOP = 'app.stop';
     const ON_BEFORE_REQUEST = 'app.beforeRequest';
-    const ON_AFTER_REQUEST = 'app.afterRequest';
 
-    use EventManagerAwareTrait;
+    const ON_AFTER_REQUEST = 'app.afterRequest';
 
     public function __construct(EventManager $em)
     {
         $this->setEventManager($em);
 
-        $this->eventManager->trigger(self::ON_START, new Event('start', [
+        $this->eventManager->trigger(new Event(self::ON_START, [
             'key' => 'val'
         ]));
     }
@@ -37,7 +38,7 @@ class App
     public function run()
     {
         $sleep = 0;
-        $this->eventManager->trigger(self::ON_BEFORE_REQUEST, new Event('beforeRequest'));
+        $this->eventManager->trigger(self::ON_BEFORE_REQUEST);
 
         echo 'request handling ';
         while ($sleep <= 3) {
@@ -47,12 +48,12 @@ class App
         }
         echo "\n";
 
-        $this->eventManager->trigger(self::ON_AFTER_REQUEST, new Event('afterRequest'));
+        $this->eventManager->trigger(self::ON_AFTER_REQUEST);
     }
 
     public function __destruct()
     {
-        $this->eventManager->trigger(self::ON_STOP, new Event('stop', [
+        $this->eventManager->trigger(new Event(self::ON_STOP, [
             'key1' => 'val1'
         ]));
     }
