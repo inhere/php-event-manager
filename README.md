@@ -54,7 +54,7 @@ $em = new EventManager();
 2. 一个闭包
 3. 一个监听器类(可以有多种方式)
 
-### function
+### 1. function
 
 ```php
 // ... 
@@ -62,7 +62,7 @@ $em = new EventManager();
 $em->attach(Mailer::EVENT_MESSAGE_SENT, 'my_function');
 ```
 
-### 闭包
+### 2. 闭包
 
 ```php
 // ... 
@@ -73,7 +73,7 @@ $em->attach(Mailer::EVENT_MESSAGE_SENT, function(Event $event) {
 });
 ```
 
-### 监听器类
+### 3. 监听器类(有多种方式)
 
 - 类里面存在跟事件相同名称的方法
 
@@ -117,6 +117,46 @@ class ExamHandler implements EventHandlerInterface
     public function handle(EventInterface $event)
     {
         // TODO: Implement handle() method.
+    }
+}
+```
+
+- 实现接口 `EventSubscriberInterface`
+
+可以在一个类里面自定义监听多个事件
+
+```php
+/**
+ * Class EnumGroupListener
+ * @package Inhere\Event\Examples
+ */
+class EnumGroupListener implements EventSubscriberInterface
+{
+    const TEST_EVENT = 'test';
+    const POST_EVENT = 'post';
+
+    /**
+     * 配置事件与对应的处理方法
+     * @return array
+     */
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            self::TEST_EVENT => 'onTest',
+            self::POST_EVENT => ['onPost', ListenerPriority::LOW], // 还可以配置优先级
+        ];
+    }
+
+    public function onTest(EventInterface $event)
+    {
+        $pos = __METHOD__;
+        echo "handle the event {$event->getName()} on the: $pos\n";
+    }
+
+    public function onPost(EventInterface $event)
+    {
+        $pos = __METHOD__;
+        echo "handle the event {$event->getName()} on the: $pos\n";
     }
 }
 ```
