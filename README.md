@@ -318,7 +318,7 @@ class App
 
 - 方式一： **类里面存在跟事件名称相同的方法**(`app.start` -> `start()`)
 
-这种方式简单快捷，但是限定较死。
+> 这种方式简单快捷，但是限定较死 - 事件与方法的名称相同。
 
 ```php
 
@@ -402,6 +402,7 @@ class EnumGroupListener implements EventSubscriberInterface
 ### 添加监听
 
 ```php
+// 这里使用 方式一
 $em = new EventManager();
 
 // register a group listener
