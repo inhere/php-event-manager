@@ -163,7 +163,7 @@ class EnumGroupListener implements EventSubscriberInterface
 
 ## 快速使用
 
-### 绑定事件触发
+### 1. 绑定事件触发
 
 ```php
 // a pre-defined event
@@ -193,7 +193,7 @@ class Mailer
 }
 ```
 
-### 触发事件
+### 2. 触发事件
 
 ```php
 $em = new EventManager();
@@ -218,7 +218,7 @@ $mailer->setEventManager($em);
 $mailer->send('hello, world!');
 ```
 
-### 运行示例
+### 3. 运行示例
 
 完整的实例代码在 `examples/demo.php` 中。
 
@@ -261,7 +261,7 @@ app.run
 app.stop
 ```
 
-### 一个简单的示例应用类
+### 1. 一个简单的示例应用类
 
 ```php
 
@@ -312,7 +312,7 @@ class App
 }
 ```
 
-### 此应用的监听器类
+### 2. 此应用的监听器类
 
 将每个事件的监听器写一个类，显得有些麻烦。我们可以只写一个类用里面不同的方法来处理不同的事件。
 
@@ -399,7 +399,7 @@ class EnumGroupListener implements EventSubscriberInterface
 
 ```
 
-### 添加监听
+### 3. 添加监听
 
 ```php
 // 这里使用 方式一
@@ -415,7 +415,7 @@ $app = new App($em);
 $app->run();
 ```
 
-### 运行示例
+### 4. 运行示例
 
 完整的示例代码在 `examples/named-group.php` 中。
 
