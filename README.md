@@ -1,8 +1,8 @@
 # Event manager
 
-简单的事件管理
+简洁功能完善的事件管理实现
 
-- implement the [Psr 14](https://github.com/php-fig/fig-standards/blob/master/proposed/event-manager.md) - Event Manager
+- 实现自 [Psr 14](https://github.com/php-fig/fig-standards/blob/master/proposed/event-manager.md) - 事件管理器
 - 支持设置事件优先级
 - 支持快速的事件组注册
 - 支持通配符事件的监听
@@ -10,7 +10,7 @@
 ## 项目地址
 
 - **github** https://github.com/inhere/php-event-manager.git
-- **git@osc** https://git.oschina.net/inhere/php-event-manager.git
+- **gitee** https://gitee/inhere/php-event-manager.git
 
 ## 安装
 
@@ -318,7 +318,7 @@ class App
 
 - 方式一： **类里面存在跟事件名称相同的方法**(`app.start` -> `start()`)
 
-> 这种方式简单快捷，但是限定较死 - 事件与方法的名称相同。
+> 这种方式简单快捷，但是限定较死 - 事件名与方法的名称必须相同。
 
 ```php
 
