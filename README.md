@@ -1,6 +1,6 @@
 # Event manager
 
-简洁功能完善的事件管理实现
+简洁,功能完善的事件管理实现
 
 - 实现自 [Psr 14](https://github.com/php-fig/fig-standards/blob/master/proposed/event-manager.md) - 事件管理器
 - 支持设置事件优先级
@@ -10,7 +10,7 @@
 ## 项目地址
 
 - **github** https://github.com/inhere/php-event-manager.git
-- **gitee** https://gitee/inhere/php-event-manager.git
+- **gitee** https://gitee.com/inhere/php-event-manager.git
 
 ## 安装
 
