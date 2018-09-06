@@ -185,7 +185,7 @@ class EventManager implements EventManagerInterface
                     $priority = $defaultPriority;
                 }
 
-                if (!$name = trim($name, '. ')) {
+                if (!$name = \trim($name, '. ')) {
                     continue;
                 }
 
@@ -283,10 +283,10 @@ class EventManager implements EventManagerInterface
             // have a group listener. eg 'app'
             if (isset($this->listeners[$prefix])) {
                 $this->triggerListeners($this->listeners[$prefix], $event, $method);
-            }
-
-            if ($event->isPropagationStopped()) {
-                return $event;
+                
+                if ($event->isPropagationStopped()) {
+                    return $event;
+                }
             }
 
             // have a wildcards listener. eg 'app.*'
@@ -294,10 +294,10 @@ class EventManager implements EventManagerInterface
 
             if (isset($this->listeners[$wildcardEvent])) {
                 $this->triggerListeners($this->listeners[$wildcardEvent], $event, $method);
-            }
-
-            if ($event->isPropagationStopped()) {
-                return $event;
+                
+                if ($event->isPropagationStopped()) {
+                    return $event;
+                }
             }
         }
 
