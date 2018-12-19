@@ -240,13 +240,8 @@ class EventManager implements EventManagerInterface
     public function trigger($event, $target = null, array $args = [])
     {
         if (!$event instanceof EventInterface) {
-            $event = (string)$event;
-
-            if (isset($this->events[$event])) {
-                $event = $this->events[$event];
-            } else {
-                $event = $this->wrapperEvent($event);
-            }
+            $name = (string)$event;
+            $event = $this->events[$name] ?? $this->wrapperEvent($name);
         }
 
         /** @var EventInterface $event */
@@ -283,7 +278,7 @@ class EventManager implements EventManagerInterface
             // have a group listener. eg 'app'
             if (isset($this->listeners[$prefix])) {
                 $this->triggerListeners($this->listeners[$prefix], $event, $method);
-                
+
                 if ($event->isPropagationStopped()) {
                     return $event;
                 }
@@ -294,7 +289,7 @@ class EventManager implements EventManagerInterface
 
             if (isset($this->listeners[$wildcardEvent])) {
                 $this->triggerListeners($this->listeners[$wildcardEvent], $event, $method);
-                
+
                 if ($event->isPropagationStopped()) {
                     return $event;
                 }
@@ -428,11 +423,7 @@ class EventManager implements EventManagerInterface
             $event = $event->getName();
         }
 
-        if (isset($this->listeners[$event])) {
-            return $this->listeners[$event];
-        }
-
-        return null;
+        return $this->listeners[$event] ?? null;
     }
 
     /**

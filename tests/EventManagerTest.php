@@ -31,7 +31,7 @@ class EventManagerTest extends TestCase
     {
         $em = new EventManager();
         $em->attach('test', new ExamHandler());
-        $em->attach('test', function() {
+        $em->attach('test', function () {
             //
         });
 
@@ -41,7 +41,7 @@ class EventManagerTest extends TestCase
     public function testPriority()
     {
         $l0 = new ExamHandler();
-        $l1 = function() {
+        $l1 = function () {
             //
         };
 
@@ -55,14 +55,15 @@ class EventManagerTest extends TestCase
 
     public function testTrigger()
     {
-        $l0 = new class {
+        $l0 = new class
+        {
             public function __invoke(Event $evt)
             {
                 $evt->addParam('key1', 'val1');
                 $evt->setParam('key', 'new val');
             }
         };
-        $l1 = function(EventInterface $evt) {
+        $l1 = function (EventInterface $evt) {
             $evt->setTarget('new target');
         };
 

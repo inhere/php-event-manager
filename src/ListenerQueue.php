@@ -40,7 +40,7 @@ class ListenerQueue implements \IteratorAggregate, \Countable
 
     /**
      * 添加一个监听器, 增加了添加 callback(string|array)
-     * @param \Closure|callable|\stdClass|mixed $listener  监听器
+     * @param \Closure|callable|\stdClass|mixed $listener 监听器
      * @param integer $priority 优先级
      * @return $this
      */
