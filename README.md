@@ -3,8 +3,11 @@
 简洁,功能完善的事件管理实现
 
 - 实现自 [Psr 14](https://github.com/php-fig/fig-standards/blob/master/proposed/event-manager.md) - 事件管理器
+- 支持对一个事件添加多个监听器
 - 支持设置事件优先级
 - 支持快速的事件组注册
+- 支持根据事件名称来快速的对事件组监听
+  - eg 触发 `app.run`, `app.end` 都将同时会触发 `app.*` 事件
 - 支持通配符事件的监听
 
 ## 项目地址
