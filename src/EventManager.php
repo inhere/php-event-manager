@@ -15,7 +15,7 @@ namespace Inhere\Event;
 class EventManager implements EventManagerInterface
 {
     // 通配符 - 所有触发的事件都会流过
-    const MATCH_ALL = '*';
+    public const WILDCARD = '*';
 
     /**
      * @var self
@@ -324,11 +324,11 @@ class EventManager implements EventManagerInterface
             if (\is_object($listener)) {
                 if ($listener instanceof EventHandlerInterface) {
                     $listener->handle($event);
-                } elseif ($method && method_exists($listener, $method)) {
+                } elseif ($method && \method_exists($listener, $method)) {
                     $listener->$method($event);
-                } elseif ($callable && method_exists($listener, $name)) {
+                } elseif ($callable && \method_exists($listener, $name)) {
                     $listener->$name($event);
-                } elseif (method_exists($listener, '__invoke')) {
+                } elseif (\method_exists($listener, '__invoke')) {
                     $listener($event);
                 }
             } elseif (\is_callable($listener)) {
@@ -503,8 +503,6 @@ class EventManager implements EventManagerInterface
             if (isset($this->listeners[$event])) {
                 unset($this->listeners[$event]);
             }
-        } else {
-            $this->listeners = [];
         }
     }
 
