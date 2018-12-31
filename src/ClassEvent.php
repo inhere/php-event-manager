@@ -124,7 +124,7 @@ class ClassEvent
      */
     public static function isSupportedEvent($event)
     {
-        return $event && preg_match('/^[a-zA-z][\w-]+$/', $event);
+        return $event && \preg_match('/^[a-zA-z][\w-]+$/', $event);
     }
 
     /**

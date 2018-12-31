@@ -14,12 +14,11 @@ namespace Inhere\Event;
  */
 final class ListenerPriority
 {
-    const MIN = -300;
-    const LOW = -200;
-    const BELOW_NORMAL = -100;
-    const NORMAL = 0;
-    const ABOVE_NORMAL = 100;
-    const HIGH = 200;
-    const MAX = 300;
-
+    public const MIN = -300;
+    public const LOW = -200;
+    public const BELOW_NORMAL = -100;
+    public const NORMAL = 0;
+    public const ABOVE_NORMAL = 100;
+    public const HIGH = 200;
+    public const MAX = 300;
 }

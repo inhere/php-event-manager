@@ -30,7 +30,7 @@ class ListenerQueue implements \IteratorAggregate, \Countable
      * 计数器。设定最大值为 PHP_INT_MAX
      * @var int
      */
-    private $counter = PHP_INT_MAX;
+    private $counter = \PHP_INT_MAX;
 
     public function __construct()
     {
@@ -131,7 +131,6 @@ class ListenerQueue implements \IteratorAggregate, \Countable
         }
 
         unset($queue);
-
         return $listeners;
     }
 
@@ -176,5 +175,14 @@ class ListenerQueue implements \IteratorAggregate, \Countable
     public function count()
     {
         return \count($this->queue);
+    }
+
+    /**
+     * clear queue
+     */
+    public function clear()
+    {
+        $this->queue = null;
+        $this->store = null;
     }
 }

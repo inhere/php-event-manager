@@ -337,11 +337,6 @@ class EventManager implements EventManagerInterface
         }
     }
 
-    // protected function collectListeners(EventInterface $event)
-    // {
-    //     // $name = $event->getName();
-    // }
-
     /**
      * 是否存在 对事件的 监听队列
      * @param  EventInterface|string $event
