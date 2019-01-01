@@ -24,6 +24,11 @@
             "Inhere\\Event\\": "src/"
         }
     },
+    "autoload-dev":  {
+        "psr-4": {
+            "Inhere\\EventTest\\": "src/"
+        }
+    },
     "suggest": {
         "inhere/php-validate": "Very lightweight data validate tool library",
         "inhere/console": "a lightweight php console application library."

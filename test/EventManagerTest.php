@@ -6,7 +6,7 @@
  * Time: 9:47
  */
 
-namespace Inhere\Event\Tests;
+namespace Inhere\EventTest;
 
 use Inhere\Event\Event;
 use Inhere\Event\EventInterface;

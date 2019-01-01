@@ -15,8 +15,8 @@ spl_autoload_register(function ($class) {
     if (0 === strpos($class, 'Inhere\Event\Examples\\')) {
         $path = str_replace('\\', '/', substr($class, strlen('Inhere\Event\Examples\\')));
         $file = dirname(__DIR__) . "/examples/{$path}.php";
-    } elseif (0 === strpos($class, 'Inhere\Event\Tests\\')) {
-        $path = str_replace('\\', '/', substr($class, strlen('Inhere\Event\Tests\\')));
+    } elseif (0 === strpos($class, 'Inhere\EventTest\\')) {
+        $path = str_replace('\\', '/', substr($class, strlen('Inhere\EventTest\\')));
         $file = dirname(__DIR__) . "/{$path}.php";
     } elseif (0 === strpos($class, 'Inhere\Event\\')) {
         $path = str_replace('\\', '/', substr($class, strlen('Inhere\Event\\')));

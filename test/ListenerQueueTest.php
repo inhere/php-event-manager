@@ -6,14 +6,14 @@
  * Time: 9:57
  */
 
-namespace Inhere\Event\Tests;
+namespace Inhere\EventTest;
 
 use Inhere\Event\ListenerQueue;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class ListenerQueueTest
- * @package Inhere\Event\Tests
+ * @package Inhere\EventTest
  */
 class ListenerQueueTest extends TestCase
 {
