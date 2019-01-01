@@ -1,8 +1,12 @@
-# Event manager
+# Event Dispatcher
 
-简洁,功能完善的事件管理实现
+[![License](https://img.shields.io/packagist/l/inhere/event.svg?style=flat-square)](LICENSE)
+[![Php Version](https://img.shields.io/badge/php-%3E=7.1.0-brightgreen.svg?maxAge=2592000)](https://packagist.org/packages/inhere/event)
+[![Latest Stable Version](http://img.shields.io/packagist/v/inhere/event.svg)](https://packagist.org/packages/inhere/event)
 
-- 实现自 [Psr 14](https://github.com/php-fig/fig-standards/blob/master/proposed/event-manager.md) - 事件管理器
+简洁, 功能完善的事件管理调度实现
+
+- 实现自 [Psr 14](https://github.com/php-fig/fig-standards/blob/master/proposed/event-dispatcher.md) - 事件调度器
 - 支持对一个事件添加多个监听器
 - 支持设置事件优先级
 - 支持快速的事件组注册
@@ -13,7 +17,6 @@
 ## 项目地址
 
 - **github** https://github.com/inhere/php-event-manager.git
-- **gitee** https://gitee.com/inhere/php-event-manager.git
 
 ## 安装
 
@@ -33,15 +36,9 @@ composer require inhere/event
 }
 ```
 
-- 直接拉取
+### 事件调度器
 
-```bash
-git clone https://github.com/inhere/php-event-manager.git
-```
-
-### 事件管理器
-
-事件管理器, 也可称之为事件调度器。 事件的注册、调度(触发)都是由它管理的。
+事件调度器, 也可称之为事件管理器。事件的注册、监听器注册、调度(触发)都是由它管理的。
 
 ```php
 use Inhere\Event\EventManager;
