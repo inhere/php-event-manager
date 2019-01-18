@@ -13,12 +13,16 @@ namespace Inhere\Event;
  * Class Event
  * @package Inhere\Event
  */
-class Event implements EventInterface, \ArrayAccess, \Serializable
+class Event implements EventInterface, \Serializable
 {
-    /** @var string Event name */
+    /**
+     * @var string Event name
+     */
     protected $name = '';
 
-    /** @var array Event params */
+    /**
+     * @var array Event params
+     */
     protected $params = [];
 
     /**
@@ -30,7 +34,7 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
      * 停止事件关联的监听器队列的执行
      * @var boolean
      */
-    protected $stopPropagation = false;
+    protected $stopped = false;
 
     /**
      * @param string|null $name
@@ -78,9 +82,7 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
      */
     public function setName($name)
     {
-        if ($name) {
-            $this->name = self::checkName($name);
-        }
+        $this->name = self::checkName($name);
     }
 
     /**
@@ -114,11 +116,9 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
     /**
      * clear all param
      */
-    public function clearParams(): array
+    public function clearParams()
     {
-        $old          = $this->params;
         $this->params = [];
-        return $old;
     }
 
     /**
@@ -138,11 +138,10 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
     }
 
     /**
-     * set a argument
+     * set a param to the event
      * @param string|int $name
-     * @param            $value
+     * @param mixed      $value
      * @throws  \InvalidArgumentException  If the argument name is null.
-     * @return $this
      */
     public function setParam($name, $value)
     {
@@ -151,8 +150,6 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
         }
 
         $this->params[$name] = $value;
-
-        return $this;
     }
 
     /**
@@ -184,7 +181,6 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
         }
     }
 
-
     /**
      * Get target/context from which event was triggered
      * @return null|string|mixed
@@ -210,24 +206,24 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
      */
     public function stopPropagation($flag)
     {
-        $this->stopPropagation = (bool)$flag;
+        $this->stopped = (bool)$flag;
     }
 
     /**
      * Has this event indicated event propagation should stop?
      * @return bool
      */
-    public function isPropagationStopped()
+    public function isPropagationStopped(): bool
     {
-        return $this->stopPropagation;
+        return $this->stopped;
     }
 
     /**
      * @return string
      */
-    public function serialize()
+    public function serialize(): string
     {
-        return \serialize([$this->name, $this->params, $this->stopPropagation]);
+        return \serialize([$this->name, $this->params, $this->stopped]);
     }
 
     /**
@@ -238,49 +234,6 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
     public function unserialize($serialized)
     {
         // ['allowed_class' => null]
-        [$this->name, $this->params, $this->stopPropagation] = \unserialize($serialized, ['allowed_class' => null]);
+        [$this->name, $this->params, $this->stopped] = \unserialize($serialized, ['allowed_class' => null]);
     }
-
-    /**
-     * Tell if the given event argument exists.
-     * @param   string $name The argument name.
-     * @return  boolean  True if it exists, false otherwise.
-     */
-    public function offsetExists($name)
-    {
-        return $this->hasParam($name);
-    }
-
-    /**
-     * Get an event argument value.
-     * @param   string $name The argument name.
-     * @return  mixed  The argument value or null if not existing.
-     */
-    public function offsetGet($name)
-    {
-        return $this->getParam($name);
-    }
-
-    /**
-     * Set the value of an event argument.
-     * @param   string $name The argument name.
-     * @param   mixed  $value The argument value.
-     * @return  void
-     * @throws \InvalidArgumentException
-     */
-    public function offsetSet($name, $value)
-    {
-        $this->setParam($name, $value);
-    }
-
-    /**
-     * Remove an event argument.
-     * @param   string $name The argument name.
-     * @return  void
-     */
-    public function offsetUnset($name)
-    {
-        $this->removeParam($name);
-    }
-
 }

@@ -99,17 +99,33 @@ class EventManager implements EventManagerInterface
     }
 
     /**
-     * @param EventSubscriberInterface $eventSubscriber
+     * @param EventSubscriberInterface $object
      */
-    public function addSubscriber(EventSubscriberInterface $eventSubscriber)
+    public function addSubscriber(EventSubscriberInterface $object)
     {
-        $this->addListener($eventSubscriber);
+        $priority = ListenerPriority::NORMAL;
+
+        foreach ($object::getSubscribedEvents() as $name => $conf) {
+            if (!isset($this->listeners[$name])) {
+                $this->listeners[$name] = new ListenerQueue;
+            }
+
+            $queue = $this->listeners[$name];
+
+            // only handler method name
+            if (\is_string($conf)) {
+                $queue->add(LazyListener::create([$object, $conf]), $priority);
+                // with priority ['onPost', ListenerPriority::LOW]
+            } elseif (\is_string($conf[0])) {
+                $queue->add(new LazyListener([$object, $conf[0]]), $conf[1] ?? $priority);
+            }
+        }
     }
 
     /**
-     * 添加监听器 并关联到 某一个(多个)事件
-     * @param \Closure|callback|mixed $listener 监听器
-     * @param array|string|int        $definition 事件名，优先级设置
+     * Add a listener and associate it to one (multiple) event
+     * @param \Closure|callback|mixed $listener Listener
+     * @param array|string|int        $definition Event name, priority setting
      * Allowed:
      *     $definition = [
      *        'event name' => priority(int),
@@ -137,6 +153,11 @@ class EventManager implements EventManagerInterface
             } else {
                 $listener = LazyListener::create($listener);
             }
+
+            // is an EventSubscriber
+        } elseif ($listener instanceof EventSubscriberInterface) {
+            $this->addSubscriber($listener);
+            return true;
         }
 
         $defaultPriority = ListenerPriority::NORMAL;
@@ -150,25 +171,7 @@ class EventManager implements EventManagerInterface
             $definition = [$definition->getName() => $defaultPriority];
         }
 
-        if ($listener instanceof EventSubscriberInterface) {
-            foreach ($listener::getSubscribedEvents() as $name => $conf) {
-                if (!isset($this->listeners[$name])) {
-                    $this->listeners[$name] = new ListenerQueue;
-                }
-
-                $queue = $this->listeners[$name];
-
-                if (\is_string($conf)) {
-                    $queue->add(LazyListener::create([$listener, $conf]), $defaultPriority);
-                    // ['onPost', ListenerPriority::LOW]
-                } elseif (\is_string($conf[0])) {
-                    $queue->add(new LazyListener([$listener, $conf[0]]), $conf[1] ?? $defaultPriority);
-                }
-            }
-            return true;
-        }
-
-        // 将 监听器 关联到 各个事件
+        // Associate a listener to each event
         if ($definition) {
             foreach ($definition as $name => $priority) {
                 if (\is_int($name)) {
@@ -190,7 +193,6 @@ class EventManager implements EventManagerInterface
 
                 $this->listeners[$name]->add($listener, $priority);
             }
-
             return true;
         }
 

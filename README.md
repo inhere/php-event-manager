@@ -4,6 +4,8 @@
 [![Php Version](https://img.shields.io/badge/php-%3E=7.1.0-brightgreen.svg?maxAge=2592000)](https://packagist.org/packages/inhere/event)
 [![Latest Stable Version](http://img.shields.io/packagist/v/inhere/event.svg)](https://packagist.org/packages/inhere/event)
 
+> **[EN README](./README_en.md)**
+
 简洁, 功能完善的事件管理调度实现
 
 - 实现自 [Psr 14](https://github.com/php-fig/fig-standards/blob/master/proposed/event-dispatcher.md) - 事件调度器
@@ -318,7 +320,7 @@ class App
 
 - 方式一： **类里面存在跟事件名称相同的方法**(`app.start` -> `start()`)
 
-> 这种方式简单快捷，但是限定较死 - 事件名与方法的名称必须相同。
+> 这种方式简单快捷，但是有一定的限制 - 事件名与方法的名称必须相同。
 
 ```php
 
