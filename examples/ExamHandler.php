@@ -8,8 +8,8 @@
 
 namespace Inhere\Event\Examples;
 
-use Inhere\Event\EventInterface;
 use Inhere\Event\EventHandlerInterface;
+use Inhere\Event\EventInterface;
 
 /**
  * Class SingleListener

@@ -11,7 +11,7 @@ namespace Inhere\Event\Examples;
 
 use Inhere\Event\EventInterface;
 use Inhere\Event\EventSubscriberInterface;
-use Inhere\Event\ListenerPriority;
+use Inhere\Event\Listener\ListenerPriority;
 
 /**
  * Class EnumGroupListener

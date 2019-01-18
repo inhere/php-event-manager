@@ -8,13 +8,17 @@
 
 namespace Inhere\Event;
 
+use Inhere\Event\Listener\LazyListener;
+use Inhere\Event\Listener\ListenerPriority;
+use Inhere\Event\Listener\ListenerQueue;
+
 /**
  * Class EventManager
  * @package Inhere\Event
  */
 class EventManager implements EventManagerInterface
 {
-    // 通配符 - 所有触发的事件都会流过
+    // match all event
     public const WILDCARD = '*';
 
     /**
@@ -28,7 +32,7 @@ class EventManager implements EventManagerInterface
     private $basicEvent;
 
     /**
-     * 预定义的事件存储
+     * Predefined event store
      * @var EventInterface[]
      * [
      *     'event name' => (object)EventInterface -- event description
@@ -37,18 +41,10 @@ class EventManager implements EventManagerInterface
     protected $events = [];
 
     /**
-     * 监听器存储
+     * Listener storage
      * @var ListenerQueue[]
      */
     protected $listeners = [];
-
-    /*
-     * 含有通配符的监听器存储 eg 'db.*'
-     * - '*' 只有这一个字符时，所有的事件处理都会经过它
-     * - 'db.*' 触发有 'db.' 前缀的事件也都会经过 'db.*' 的监听器处理
-     * @var array
-     */
-    // protected $wildcards = [];
 
     /**
      * EventManager constructor.
@@ -81,9 +77,9 @@ class EventManager implements EventManagerInterface
 
     /**
      * Attaches a listener to an event
-     * @param string $event the event to attach too
+     * @param string                               $event the event to attach too
      * @param callable|EventHandlerInterface|mixed $callback A callable listener
-     * @param int $priority the priority at which the $callback executed
+     * @param int                                  $priority the priority at which the $callback executed
      * @return bool true on success false on failure
      */
     public function attach($event, $callback, $priority = 0)
@@ -93,7 +89,7 @@ class EventManager implements EventManagerInterface
 
     /**
      * Detaches a listener from an event
-     * @param string $event the event to attach too
+     * @param string   $event the event to attach too
      * @param callable $callback a callable function
      * @return bool true on success false on failure
      */
@@ -113,7 +109,7 @@ class EventManager implements EventManagerInterface
     /**
      * 添加监听器 并关联到 某一个(多个)事件
      * @param \Closure|callback|mixed $listener 监听器
-     * @param array|string|int $definition 事件名，优先级设置
+     * @param array|string|int        $definition 事件名，优先级设置
      * Allowed:
      *     $definition = [
      *        'event name' => priority(int),
@@ -139,15 +135,15 @@ class EventManager implements EventManagerInterface
 
                 // like 'function' OR '[object, method]'
             } else {
-                $listener = new LazyListener($listener);
+                $listener = LazyListener::create($listener);
             }
         }
 
         $defaultPriority = ListenerPriority::NORMAL;
 
-        if (is_numeric($definition)) {
+        if (\is_numeric($definition)) {
             $defaultPriority = (int)$definition;
-            $definition = null;
+            $definition      = null;
         } elseif (\is_string($definition)) { // 仅是个 事件名称
             $definition = [$definition => $defaultPriority];
         } elseif ($definition instanceof EventInterface) { // 仅是个 事件对象,取出名称
@@ -163,13 +159,12 @@ class EventManager implements EventManagerInterface
                 $queue = $this->listeners[$name];
 
                 if (\is_string($conf)) {
-                    $queue->add(new LazyListener([$listener, $conf]), $defaultPriority);
+                    $queue->add(LazyListener::create([$listener, $conf]), $defaultPriority);
                     // ['onPost', ListenerPriority::LOW]
                 } elseif (\is_string($conf[0])) {
                     $queue->add(new LazyListener([$listener, $conf[0]]), $conf[1] ?? $defaultPriority);
                 }
             }
-
             return true;
         }
 
@@ -181,7 +176,7 @@ class EventManager implements EventManagerInterface
                         continue;
                     }
 
-                    $name = $priority;
+                    $name     = $priority;
                     $priority = $defaultPriority;
                 }
 
@@ -232,15 +227,15 @@ class EventManager implements EventManagerInterface
      * Trigger an event
      * Can accept an EventInterface or will create one if not passed
      * @param  string|EventInterface $event 'app.start' 'app.stop'
-     * @param  mixed|string $target It is object or string.
-     * @param  array|mixed $args
+     * @param  mixed|string          $target It is object or string.
+     * @param  array|mixed           $args
      * @return EventInterface
      * @throws \InvalidArgumentException
      */
     public function trigger($event, $target = null, array $args = [])
     {
         if (!$event instanceof EventInterface) {
-            $name = (string)$event;
+            $name  = (string)$event;
             $event = $this->events[$name] ?? $this->wrapperEvent($name);
         }
 
@@ -272,8 +267,8 @@ class EventManager implements EventManagerInterface
 
         // like 'app.start' 'app.db.query'
         if ($pos = \strrpos($name, '.')) {
-            $prefix = substr($name, 0, $pos);
-            $method = substr($name, $pos + 1);
+            $prefix = \substr($name, 0, $pos);
+            $method = \substr($name, $pos + 1);
 
             // have a group listener. eg 'app'
             if (isset($this->listeners[$prefix])) {
@@ -306,13 +301,13 @@ class EventManager implements EventManagerInterface
 
     /**
      * @param array|ListenerQueue $listeners
-     * @param EventInterface $event
-     * @param null $method
+     * @param EventInterface      $event
+     * @param string|null         $method
      */
     protected function triggerListeners($listeners, EventInterface $event, $method = null)
     {
         // $handled = false;
-        $name = $event->getName();
+        $name     = $event->getName();
         $callable = false === \strpos($name, '.');
 
         // 循环调用监听器，处理事件
@@ -342,7 +337,7 @@ class EventManager implements EventManagerInterface
      * @param  EventInterface|string $event
      * @return boolean
      */
-    public function hasListenerQueue($event)
+    public function hasListenerQueue($event): bool
     {
         if ($event instanceof EventInterface) {
             $event = $event->getName();
@@ -356,18 +351,18 @@ class EventManager implements EventManagerInterface
      * @param  EventInterface|string $event
      * @return boolean
      */
-    public function hasListeners($event)
+    public function hasListeners($event): bool
     {
         return $this->hasListenerQueue($event);
     }
 
     /**
      * 是否存在(对事件的)监听器
-     * @param $listener
+     * @param  object                $listener
      * @param  EventInterface|string $event
      * @return bool
      */
-    public function hasListener($listener, $event = null)
+    public function hasListener($listener, $event = null): bool
     {
         if ($event) {
             if ($event instanceof EventInterface) {
@@ -390,7 +385,7 @@ class EventManager implements EventManagerInterface
 
     /**
      * 获取事件的一个监听器的优先级别
-     * @param $listener
+     * @param                        $listener
      * @param  string|EventInterface $event
      * @return int|null
      */
@@ -426,7 +421,7 @@ class EventManager implements EventManagerInterface
      * @param  string|EventInterface $event
      * @return array
      */
-    public function getListeners($event)
+    public function getListeners($event): array
     {
         if ($event instanceof EventInterface) {
             $event = $event->getName();
@@ -444,7 +439,7 @@ class EventManager implements EventManagerInterface
      * @param  string|EventInterface $event
      * @return int
      */
-    public function countListeners($event)
+    public function countListeners($event): int
     {
         if ($event instanceof EventInterface) {
             $event = $event->getName();
@@ -455,11 +450,10 @@ class EventManager implements EventManagerInterface
 
     /**
      * 移除对某个事件的监听
-     * @param $listener
+     * @param                            $listener
      * @param null|string|EventInterface $event
-     * 为空时，移除监听者队列中所有名为 $listener 的监听者
-     * 否则， 则移除对事件 $event 的监听者
-     * @return bool
+     * - 为空时，移除监听者队列中所有名为 $listener 的监听者
+     * - 否则， 则移除对事件 $event 的监听者
      */
     public function removeListener($listener, $event = null)
     {
@@ -478,8 +472,6 @@ class EventManager implements EventManagerInterface
                 $queue->remove($listener);
             }
         }
-
-        return true;
     }
 
     /**
@@ -487,7 +479,7 @@ class EventManager implements EventManagerInterface
      * @param  string|EventInterface $event
      * @return void
      */
-    public function clearListeners($event)
+    public function clearListeners($event): void
     {
         if ($event) {
             if ($event instanceof EventInterface) {
@@ -508,7 +500,7 @@ class EventManager implements EventManagerInterface
     /**
      * 添加一个不存在的事件
      * @param EventInterface|string $event | event name
-     * @param array $params
+     * @param array                 $params
      * @return $this
      * @throws \InvalidArgumentException
      */
@@ -527,7 +519,7 @@ class EventManager implements EventManagerInterface
     /**
      * 设定一个事件处理
      * @param string|EventInterface $event
-     * @param array $params
+     * @param array                 $params
      * @return $this
      * @throws \InvalidArgumentException
      */
@@ -544,16 +536,16 @@ class EventManager implements EventManagerInterface
 
     /**
      * @param string $name
-     * @param null $default
+     * @param null   $default
      * @return mixed|null
      */
-    public function getEvent($name, $default = null)
+    public function getEvent(string $name, $default = null)
     {
         return $this->events[$name] ?? $default;
     }
 
     /**
-     * @param $event
+     * @param string|EventInterface $event
      * @return $this
      */
     public function removeEvent($event)
@@ -570,10 +562,10 @@ class EventManager implements EventManagerInterface
     }
 
     /**
-     * @param $event
+     * @param string|EventInterface $event
      * @return bool
      */
-    public function hasEvent($event)
+    public function hasEvent($event): bool
     {
         if ($event instanceof EventInterface) {
             $event = $event->getName();
@@ -585,7 +577,7 @@ class EventManager implements EventManagerInterface
     /**
      * @return array
      */
-    public function getEvents()
+    public function getEvents(): array
     {
         return $this->events;
     }
@@ -602,15 +594,15 @@ class EventManager implements EventManagerInterface
     }
 
     /**
-     * @param $event
+     * @param             $event
      * @param null|string $target
-     * @param array $params
+     * @param array       $params
      * @return EventInterface
      */
     public function wrapperEvent($event, $target = null, array $params = [])
     {
         if (!$event instanceof EventInterface) {
-            $name = (string)$event;
+            $name  = (string)$event;
             $event = clone $this->basicEvent;
             $event->setName($name);
         }
@@ -629,7 +621,7 @@ class EventManager implements EventManagerInterface
     /**
      * @return int
      */
-    public function countEvents()
+    public function countEvents(): int
     {
         return \count($this->events);
     }

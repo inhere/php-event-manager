@@ -1,36 +1,36 @@
 {
-    "name": "inhere/event",
-    "type": "library",
-    "description": "event manager library of the php",
-    "keywords": [
-        "library",
-        "event",
-        "event-dispatcher"
-    ],
-    "homepage": "https://github.com/inhere/php-event-manager",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "inhere",
-            "email": "in.798@qq.com",
-            "homepage": "http://www.yzone.net/"
-        }
-    ],
-    "require": {
-        "php": ">7.1.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "Inhere\\Event\\": "src/"
-        }
-    },
-    "autoload-dev":  {
-        "psr-4": {
-            "Inhere\\EventTest\\": "src/"
-        }
-    },
-    "suggest": {
-        "inhere/php-validate": "Very lightweight data validate tool library",
-        "inhere/console": "a lightweight php console application library."
+  "name": "inhere/event",
+  "type": "library",
+  "description": "event manager library of the php",
+  "keywords": [
+    "library",
+    "event",
+    "event-dispatcher"
+  ],
+  "homepage": "https://github.com/inhere/php-event-manager",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "inhere",
+      "email": "in.798@qq.com",
+      "homepage": "http://www.yzone.net/"
     }
+  ],
+  "require": {
+    "php": ">7.1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Inhere\\Event\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Inhere\\EventTest\\": "src/"
+    }
+  },
+  "suggest": {
+    "inhere/php-validate": "Very lightweight data validate tool library",
+    "inhere/console": "a lightweight php console application library."
+  }
 }

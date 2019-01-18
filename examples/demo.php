@@ -2,12 +2,12 @@
 
 
 use Inhere\Event\Event;
-use Inhere\Event\EventManagerAwareTrait;
 use Inhere\Event\EventInterface;
 use Inhere\Event\EventManager;
+use Inhere\Event\EventManagerAwareTrait;
 use Inhere\Event\Examples\ExamHandler;
 
-require dirname(__DIR__) . '/tests/boot.php';
+require dirname(__DIR__) . '/test/boot.php';
 
 function exam_handler(EventInterface $event)
 {
@@ -52,7 +52,7 @@ class Mailer
     {
         // ...发送 $message 的逻辑...
 
-        $event = new MessageEvent(self::EVENT_MESSAGE_SENT);
+        $event          = new MessageEvent(self::EVENT_MESSAGE_SENT);
         $event->message = $message;
 
         // trigger event
@@ -65,8 +65,7 @@ class Mailer
 $em = new EventManager();
 
 $em->attach(Mailer::EVENT_MESSAGE_SENT, 'exam_handler');
-$em->attach(Mailer::EVENT_MESSAGE_SENT, function (EventInterface $event)
-{
+$em->attach(Mailer::EVENT_MESSAGE_SENT, function (EventInterface $event) {
     $pos = __METHOD__;
     echo "handle the event '{$event->getName()}' on the: $pos\n";
 });
@@ -74,8 +73,7 @@ $em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamListener1(), 10);
 $em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamListener2());
 $em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamHandler());
 
-$em->attach('*', function (EventInterface $event)
-{
+$em->attach('*', function (EventInterface $event) {
     echo "handle the event '{$event->getName()}' on the global listener.\n";
 });
 

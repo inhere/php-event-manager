@@ -16,7 +16,7 @@ namespace Inhere\Event;
 class Event implements EventInterface, \ArrayAccess, \Serializable
 {
     /** @var string Event name */
-    protected $name;
+    protected $name = '';
 
     /** @var array Event params */
     protected $params = [];
@@ -34,10 +34,10 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
 
     /**
      * @param string|null $name
-     * @param array $params
+     * @param array       $params
      * @throws \InvalidArgumentException
      */
-    public function __construct($name = null, array $params = [])
+    public function __construct(string $name = null, array $params = [])
     {
         if ($name) {
             $this->setName($name);
@@ -55,10 +55,10 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
      */
     public static function checkName(string $name)
     {
-        $name = trim($name, '. ');
+        $name = \trim($name, '. ');
 
         if (!$name || \strlen($name) > 64) {
-            throw new \InvalidArgumentException('Set up the name can be a not empty string of not more than 64 characters!');
+            throw new \InvalidArgumentException('Setup the name can be a not empty string of not more than 64 characters!');
         }
 
         return $name;
@@ -67,7 +67,7 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -78,7 +78,9 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
      */
     public function setName($name)
     {
-        $this->name = self::checkName($name);
+        if ($name) {
+            $this->name = self::checkName($name);
+        }
     }
 
     /**
@@ -96,8 +98,7 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
      */
     public function addParams(array $params)
     {
-        $this->params = array_merge($this->params, $params);
-
+        $this->params = \array_merge($this->params, $params);
         return $this;
     }
 
@@ -105,7 +106,7 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
      * get all param
      * @return array
      */
-    public function getParams()
+    public function getParams(): array
     {
         return $this->params;
     }
@@ -113,18 +114,17 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
     /**
      * clear all param
      */
-    public function clearParams()
+    public function clearParams(): array
     {
-        $old = $this->params;
+        $old          = $this->params;
         $this->params = [];
-
         return $old;
     }
 
     /**
      * add a argument
-     * @param $name
-     * @param $value
+     * @param string|int $name
+     * @param mixed      $value
      * @return $this
      * @throws \InvalidArgumentException
      */
@@ -139,8 +139,8 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
 
     /**
      * set a argument
-     * @param $name
-     * @param $value
+     * @param string|int $name
+     * @param            $value
      * @throws  \InvalidArgumentException  If the argument name is null.
      * @return $this
      */
@@ -156,8 +156,8 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
     }
 
     /**
-     * @param $name
-     * @param null $default
+     * @param string|int $name
+     * @param null       $default
      * @return null
      */
     public function getParam($name, $default = null)
@@ -166,18 +166,18 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
     }
 
     /**
-     * @param $name
+     * @param string|int $name
      * @return bool
      */
-    public function hasParam($name)
+    public function hasParam($name): bool
     {
         return isset($this->params[$name]);
     }
 
     /**
-     * @param $name
+     * @param string|int $name
      */
-    public function removeParam($name)
+    public function removeParam(string $name)
     {
         if (isset($this->params[$name])) {
             unset($this->params[$name]);
@@ -227,7 +227,7 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
      */
     public function serialize()
     {
-        return serialize(array($this->name, $this->params, $this->stopPropagation));
+        return \serialize([$this->name, $this->params, $this->stopPropagation]);
     }
 
     /**
@@ -238,7 +238,7 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
     public function unserialize($serialized)
     {
         // ['allowed_class' => null]
-        list($this->name, $this->params, $this->stopPropagation) = unserialize($serialized, []);
+        [$this->name, $this->params, $this->stopPropagation] = \unserialize($serialized, ['allowed_class' => null]);
     }
 
     /**
@@ -264,7 +264,7 @@ class Event implements EventInterface, \ArrayAccess, \Serializable
     /**
      * Set the value of an event argument.
      * @param   string $name The argument name.
-     * @param   mixed $value The argument value.
+     * @param   mixed  $value The argument value.
      * @return  void
      * @throws \InvalidArgumentException
      */

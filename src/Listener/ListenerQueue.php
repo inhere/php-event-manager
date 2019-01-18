@@ -6,11 +6,11 @@
  * @link [windwalker framework](https://github.com/ventoviro/windwalker)
  */
 
-namespace Inhere\Event;
+namespace Inhere\Event\Listener;
 
 /**
  * Class ListenerQueue - 一个事件的监听器队列存储管理类
- * @package Inhere\Event
+ * @package Inhere\Event\Listener
  */
 class ListenerQueue implements \IteratorAggregate, \Countable
 {
@@ -41,10 +41,10 @@ class ListenerQueue implements \IteratorAggregate, \Countable
     /**
      * 添加一个监听器, 增加了添加 callback(string|array)
      * @param \Closure|callable|\stdClass|mixed $listener 监听器
-     * @param integer $priority 优先级
+     * @param integer                           $priority 优先级
      * @return $this
      */
-    public function add($listener, $priority)
+    public function add($listener, int $priority)
     {
         // transfer to object. like string/array
         if (!\is_object($listener)) {
@@ -65,7 +65,7 @@ class ListenerQueue implements \IteratorAggregate, \Countable
 
     /**
      * 删除一个监听器
-     * @param $listener
+     * @param object $listener
      * @return $this
      */
     public function remove($listener)
@@ -91,10 +91,10 @@ class ListenerQueue implements \IteratorAggregate, \Countable
     /**
      * Get the priority of the given listener. 得到指定监听器的优先级
      * @param   mixed $listener The listener.
-     * @param   mixed $default The default value to return if the listener doesn't exist.
+     * @param   int   $default The default value to return if the listener doesn't exist.
      * @return  mixed  The listener priority if it exists, null otherwise.
      */
-    public function getPriority($listener, $default = null)
+    public function getPriority($listener, int $default = null)
     {
         if ($this->store->contains($listener)) {
             // @see self::add(). attach as: `[priority, counter value]`
@@ -106,11 +106,11 @@ class ListenerQueue implements \IteratorAggregate, \Countable
 
     /**
      * getPriority() alias method
-     * @param $listener
-     * @param null $default
+     * @param     $listener
+     * @param int $default
      * @return mixed
      */
-    public function getLevel($listener, $default = null)
+    public function getLevel($listener, int $default = null)
     {
         return $this->getPriority($listener, $default);
     }
@@ -135,19 +135,19 @@ class ListenerQueue implements \IteratorAggregate, \Countable
     }
 
     /**
-     * @param $listener
+     * @param object $listener
      * @return bool
      */
-    public function has($listener)
+    public function has($listener): bool
     {
         return $this->store->contains($listener);
     }
 
     /**
-     * @param $listener
+     * @param object $listener
      * @return bool
      */
-    public function exists($listener)
+    public function exists($listener): bool
     {
         return $this->has($listener);
     }
@@ -172,7 +172,7 @@ class ListenerQueue implements \IteratorAggregate, \Countable
     /**
      * {@inheritDoc}
      */
-    public function count()
+    public function count(): int
     {
         return \count($this->queue);
     }
@@ -180,9 +180,8 @@ class ListenerQueue implements \IteratorAggregate, \Countable
     /**
      * clear queue
      */
-    public function clear()
+    public function clear(): void
     {
-        $this->queue = null;
-        $this->store = null;
+        $this->queue = $this->store = null;
     }
 }

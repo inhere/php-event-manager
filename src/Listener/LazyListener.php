@@ -6,11 +6,14 @@
  * Time: 00:07
  */
 
-namespace Inhere\Event;
+namespace Inhere\Event\Listener;
+
+use Inhere\Event\EventHandlerInterface;
+use Inhere\Event\EventInterface;
 
 /**
  * Class LazyListener - 将callable包装成对象
- * @package Inhere\Event
+ * @package Inhere\Event\Listener
  */
 class LazyListener implements EventHandlerInterface
 {
@@ -19,6 +22,19 @@ class LazyListener implements EventHandlerInterface
      */
     private $callback;
 
+    /**
+     * @param callable $callback
+     * @return LazyListener
+     */
+    public static function create(callable $callback): self
+    {
+        return new self($callback);
+    }
+
+    /**
+     * LazyListener constructor.
+     * @param callable $callback
+     */
     public function __construct(callable $callback)
     {
         $this->callback = $callback;

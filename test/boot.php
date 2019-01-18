@@ -1,8 +1,10 @@
 <?php
 /**
  * phpunit
- * OR
+ * // set boot
  * phpunit --bootstrap tests/boot.php tests
+ * // output coverage without xdebug
+ * phpdbg -dauto_globals_jit=Off -qrr /usr/local/bin/phpunit --coverage-text
  */
 
 error_reporting(E_ALL);

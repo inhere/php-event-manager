@@ -9,8 +9,8 @@
 namespace Inhere\Event\Examples;
 
 use Inhere\Event\Event;
-use Inhere\Event\EventManagerAwareTrait;
 use Inhere\Event\EventManager;
+use Inhere\Event\EventManagerAwareTrait;
 
 /**
  * Class App
@@ -20,8 +20,8 @@ class App
 {
     use EventManagerAwareTrait;
 
-    const ON_START = 'app.start';
-    const ON_STOP = 'app.stop';
+    const ON_START          = 'app.start';
+    const ON_STOP           = 'app.stop';
     const ON_BEFORE_REQUEST = 'app.beforeRequest';
 
     const ON_AFTER_REQUEST = 'app.afterRequest';

@@ -8,7 +8,7 @@
 
 namespace Inhere\EventTest;
 
-use Inhere\Event\ListenerQueue;
+use Inhere\Event\Listener\ListenerQueue;
 use PHPUnit\Framework\TestCase;
 
 /**

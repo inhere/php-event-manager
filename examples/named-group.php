@@ -10,7 +10,7 @@ use Inhere\Event\EventManager;
 use Inhere\Event\Examples\App;
 use Inhere\Event\Examples\AppListener;
 
-require dirname(__DIR__) . '/tests/boot.php';
+require dirname(__DIR__) . '/test/boot.php';
 
 $em = new EventManager();
 
