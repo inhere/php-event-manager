@@ -4,43 +4,46 @@
 [![Php Version](https://img.shields.io/badge/php-%3E=7.1.0-brightgreen.svg?maxAge=2592000)](https://packagist.org/packages/inhere/event)
 [![Latest Stable Version](http://img.shields.io/packagist/v/inhere/event.svg)](https://packagist.org/packages/inhere/event)
 
-> **[EN README](./README_en.md)**
+> **[中文README](./README.md)**
 
-简洁, 功能完善的事件管理调度实现
+Simple, fully functional event management scheduling implementation
 
-- 实现自 [Psr 14](https://github.com/php-fig/fig-standards/blob/master/proposed/event-dispatcher.md) - 事件调度器
-- 支持对一个事件添加多个监听器
-- 支持设置事件优先级
-- 支持快速的事件组注册
-- 支持根据事件名称来快速的对事件组监听
-  - eg 触发 `app.run`, `app.end` 都将同时会触发 `app.*` 事件
-- 支持通配符事件的监听
+- Implements the [Psr 14](https://github.com/php-fig/fig-standards/blob/master/proposed/event-dispatcher.md) - event dispatcher
+- Support for adding multiple listeners to an event
+- Support for setting event priority
+- Support for fast event group registration
+- Support for quick event group monitoring based on event name
+  - eg Trigger `app.run`, `app.end` will also trigger the `app.*` event
+- Support for monitoring of wildcard events
 
-## 项目地址
+## Github
 
 - **github** https://github.com/inhere/php-event-manager.git
 
-## 安装
+## Install
 
-- composer 命令
+- by composer require
 
 ```php
 composer require inhere/event
 ```
 
-- composer.json
+- by `composer.json`
 
 ```json
 {
     "require": {
-        "inhere/event": "dev-master"
+        "inhere/event": "^1.0"
+        // "inhere/event": "dev-master"
     }
 }
 ```
 
-### 事件调度器
+### Event dispatcher
+    
+The event dispatcher, also known as the event manager. 
 
-事件调度器, 也可称之为事件管理器。事件的注册、监听器注册、调度(触发)都是由它管理的。
+Event registration, listener registration, and dispatcher (triggering) are all managed by it.
 
 ```php
 use Inhere\Event\EventManager;
@@ -48,15 +51,15 @@ use Inhere\Event\EventManager;
 $em = new EventManager();
 ```
 
-## 事件监听器
+## Event listener
 
-监听器允许是: 
+listener can be: 
 
-1. function 函数
-2. 一个闭包
-3. 一个监听器类(可以有多种方式)
+1. function name
+2. a closure
+3. a class(There are many ways)
 
-### 1. function
+### 1. Function
 
 ```php
 // ... 
@@ -64,7 +67,7 @@ $em = new EventManager();
 $em->attach(Mailer::EVENT_MESSAGE_SENT, 'my_function');
 ```
 
-### 2. 闭包
+### 2. Closure
 
 ```php
 // ... 
@@ -75,11 +78,13 @@ $em->attach(Mailer::EVENT_MESSAGE_SENT, function(Event $event) {
 });
 ```
 
-### 3. 监听器类(有多种方式)
+### 3. Listener class
 
-- 类里面存在跟事件相同名称的方法
+#### Method with the same name of the event
 
-> 此种方式可以在类里面写多个事件的处理方法
+a method with the same name as the event in the class
+
+> This way you can write multiple event handlers in a class.
 
 ```php
 class ExamListener1
@@ -88,12 +93,20 @@ class ExamListener1
     {
         echo "handle the event {$event->getName()}\n";
     }
+    
+    public function otherEvent(EventInterface $event)
+    {
+        echo "handle the event {$event->getName()}\n";
+    }
 }
+
+// register
+$em->addListener('group name', new ExamListener1);
 ```
 
-- 一个类(含有 `__invoke` 方法)
+#### A class (with the `__invoke` method)
 
-> 此时这个类对象就相当于一个闭包
+> At this point, this class object is equivalent to a closure.
 
 ```php
 class ExamListener2
@@ -103,11 +116,14 @@ class ExamListener2
         echo "handle the event {$event->getName()}\n";
     }
 }
+
+// register
+$em->addListener('event name', new ExamListener2);
 ```
 
-- 实现接口 `EventHandlerInterface`
+#### Implements `EventHandlerInterface`
 
-触发时会自动调用 `handle()` 方法。
+The `handle()` method is called automatically when triggered.
 
 ```php
 class ExamHandler implements EventHandlerInterface
@@ -121,11 +137,14 @@ class ExamHandler implements EventHandlerInterface
         // TODO: Implement handle() method.
     }
 }
+
+// register
+$em->addListener('event name', new ExamListener2);
 ```
 
-- 实现接口 `EventSubscriberInterface`
+#### Implements `EventSubscriberInterface`
 
-可以在一个类里面自定义监听多个事件
+Can customize multiple events in one class, and allow configure priority. 
 
 ```php
 /**
@@ -138,14 +157,15 @@ class EnumGroupListener implements EventSubscriberInterface
     const POST_EVENT = 'post';
 
     /**
-     * 配置事件与对应的处理方法
+     * Configuration events and corresponding processing methods
      * @return array
      */
     public static function getSubscribedEvents(): array
     {
         return [
             self::TEST_EVENT => 'onTest',
-            self::POST_EVENT => ['onPost', ListenerPriority::LOW], // 还可以配置优先级
+            // can also configure priority
+            self::POST_EVENT => ['onPost', ListenerPriority::LOW], 
         ];
     }
 
@@ -163,9 +183,9 @@ class EnumGroupListener implements EventSubscriberInterface
 }
 ```
 
-## 快速使用
+## Quick use
 
-### 1. 绑定事件触发
+### 1. Prepare
 
 ```php
 // a pre-defined event
@@ -184,23 +204,23 @@ class Mailer
 
     public function send($message)
     {
-        // ...发送 $message 的逻辑...
+        // ... do send $message ...
 
         $event = new MessageEvent(self::EVENT_MESSAGE_SENT);
         $event->message = $message;
         
-        // 事件触发
+        // will event trigger
         $this->eventManager->trigger($event);
     }
 }
 ```
 
-### 2. 触发事件
+### 2. Binding events and trigger
 
 ```php
 $em = new EventManager();
 
-// 绑定事件
+// binding events
 $em->attach(Mailer::EVENT_MESSAGE_SENT, 'exam_handler');
 $em->attach(Mailer::EVENT_MESSAGE_SENT, function (EventInterface $event)
 {
@@ -208,7 +228,8 @@ $em->attach(Mailer::EVENT_MESSAGE_SENT, function (EventInterface $event)
     echo "handle the event {$event->getName()} on the: $pos\n";
 });
 
-// 这里给它设置了更高的优先级
+// add more listeners ...
+// give it a higher priority here.
 $em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamListener1(), 10);
 $em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamListener2());
 $em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamHandler());
@@ -216,21 +237,20 @@ $em->attach(Mailer::EVENT_MESSAGE_SENT, new ExamHandler());
 $mailer = new Mailer();
 $mailer->setEventManager($em);
 
-// 执行，将会触发事件
+// Execution will trigger the event
 $mailer->send('hello, world!');
 ```
 
-### 3. 运行示例
+### 3. Running example
 
-完整的实例代码在 `examples/demo.php` 中。
+The complete example code is in `examples/demo.php`.
 
-运行: `php examples/demo.php`
-
-输出：
+Running: `php examples/demo.php`
+Output：
 
 ```text
 $ php examples/exam.php
-handle the event 'messageSent' on the: ExamListener1::messageSent // 更高优先级的先调用
+handle the event 'messageSent' on the: ExamListener1::messageSent // Higher priority first call
 handle the event 'messageSent' on the: exam_handler
 handle the event 'messageSent' on the: {closure}
 handle the event 'messageSent' on the: ExamListener2::__invoke
@@ -238,32 +258,33 @@ handle the event 'messageSent' on the: Inhere\Event\Examples\ExamHandler::handle
 
 ```
 
-## 一组事件的监听器
+## Listening to a set of events
 
-除了一些特殊的事件外，在一个应用中，大多数事件是有关联的，此时我们就可以对事件进行分组，方便识别和管理使用。
+Except for some special events, in an application, most of the events are related, 
+so we can group the events for easy identification and management.
 
-- **事件分组**  推荐将相关的事件，在名称设计上进行分组
+- **Event grouping**  It is recommended to group related events in the name design
 
-例如：
+Example：
 
 ```text
-// 模型相关：
+// Model related:
 model.insert
 model.update
 model.delete
 
-// DB相关：
+// DB related:
 db.connect
 db.disconnect
 db.query
 
-// 应用相关：
+// Application related:
 app.start
 app.run
 app.stop
 ```
 
-### 1. 一个简单的示例应用类
+### 1. A simple example application class
 
 ```php
 
@@ -314,16 +335,16 @@ class App
 }
 ```
 
-### 2. 此应用的监听器类
+### 2. Listener class for this app
 
-将每个事件的监听器写一个类，显得有些麻烦。我们可以只写一个类用里面不同的方法来处理不同的事件。
+It would be a bit of a hassle to write a class for each event listener.
+We can just write a class to handle different events in different ways.
 
-- 方式一： **类里面存在跟事件名称相同的方法**(`app.start` -> `start()`)
+- Method 1： **There is a method in the class with the same name as the event.**(`app.start` -> `start()`)
 
-> 这种方式简单快捷，但是有一定的限制 - 事件名与方法的名称必须相同。
+> This method is quick and easy, but with certain restrictions - the name of the event and the method must be the same.
 
 ```php
-
 /**
  * Class AppListener
  * @package Inhere\Event\Examples
@@ -356,13 +377,12 @@ class AppListener
 }
 ```
 
-- 方式二：实现接口 `EventSubscriberInterface`
+- Method 2：Implementation `EventSubscriberInterface`
 
-有时候我们并不想将处理方法定义成事件名称一样，想自定义。
+Sometimes we don't want to define the processing method as the event name, we want to customize the processing method name.
 
-此时我们可以实现接口 `EventSubscriberInterface`，通过里面的 `getSubscribedEvents()` 来自定义事件和对应的处理方法
-
-> 运行示例请看 `examples/enum-group.php`
+At this point we can implement the interface `EventSubscriberInterface`, 
+through the `getSubscribedEvents()` inside to customize the event and the corresponding processing method
 
 ```php
 /**
@@ -375,14 +395,14 @@ class EnumGroupListener implements EventSubscriberInterface
     const POST_EVENT = 'post';
 
     /**
-     * 配置事件与对应的处理方法
+     * Configuration events and corresponding processing methods
      * @return array
      */
     public static function getSubscribedEvents(): array
     {
         return [
             self::TEST_EVENT => 'onTest',
-            self::POST_EVENT => ['onPost', ListenerPriority::LOW], // 还可以配置优先级
+            self::POST_EVENT => ['onPost', ListenerPriority::LOW], // setting priority
         ];
     }
 
@@ -398,13 +418,14 @@ class EnumGroupListener implements EventSubscriberInterface
         echo "handle the event {$event->getName()} on the: $pos\n";
     }
 }
-
 ```
 
-### 3. 添加监听
+> Please see the running example `examples/enum-group.php`
+
+### 3. Register listener
 
 ```php
-// 这里使用 方式一
+// Note: Use here one way
 $em = new EventManager();
 
 // register a group listener
@@ -417,13 +438,12 @@ $app = new App($em);
 $app->run();
 ```
 
-### 4. 运行示例
+### 4. Running example
 
-完整的示例代码在 `examples/named-group.php` 中。
+The full sample code is in `examples/named-group.php`.
 
-运行: `php examples/named-group.php`
-
-输出：
+Running: `php examples/named-group.php`
+Output:
 
 ```text
 $ php examples/named-group.php
@@ -435,9 +455,9 @@ handle the event 'app.stop' on the: Inhere\Event\Examples\AppListener::stop
 
 ```
 
-## 事件通配符 `*`
+## Event wildcard `*`
 
-支持使用事件通配符 `*` 对一组相关的事件进行监听, 分两种。
+Support for using the event wildcard `*` to listen for a group of related events, divided into two.
 
 1. `*` 全局的事件通配符。直接对 `*` 添加监听器(`$em->attach('*', 'global_listener')`), 此时所有触发的事件都会被此监听器接收到。
 2. `{prefix}.*` 指定分组事件的监听。eg `$em->attach('db.*', 'db_listener')`, 此时所有触发的以 `db.` 为前缀的事件(eg `db.query` `db.connect`)都会被此监听器接收到。
@@ -478,10 +498,10 @@ $app = new App($em);
 $app->run();
 ```
 
-### 运行示例
+### Running example
 
-运行: `php examples/named-group.php`
-输出：(_可以看到每个事件都经过了`AppListener::allEvent()`的处理_)
+Running: `php examples/named-group.php`
+Output: (_You can see that each event has been processed by `AppListener::allEvent()`_)
 
 ```text
 $ php examples/named-group.php
@@ -497,21 +517,21 @@ handle the event 'app.stop' on the: Inhere\Event\Examples\AppListener::allEvent
 
 ```
 
-## 事件对象
+## Event object
 
-事件对象 - 装载了在触发事件时相关的上下文信息，用户自定义的。
+Event Object - Loads the context information associated with the trigger event, user-defined data.
 
-### 预先创建一个事件
+### Create an event in advance
 
-- 直接简单的使用类 `Event`
+- Direct and simple use of class `Event`
 
 ```php
 $myEvent = new Event('name', 'target', [ 'some params ...' ]);
 ```
 
-- 使用继承了 `Event` 的子类
+- Use a subclass that inherits `Event`
 
-这样你可以追加自定义数据
+> So you can append custom data
 
 ```php
 // create event class
@@ -522,9 +542,8 @@ class MessageEvent extends Event
     // append property ... 
     public $message;
 }
-
 ```
 
 ## License 
 
-MIT
+[MIT](LICENSE)

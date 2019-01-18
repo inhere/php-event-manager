@@ -40,15 +40,15 @@ trait EventManagerAwareTrait
     {
         $this->eventManager = $eventManager;
 
-        if (method_exists($this, 'attachDefaultListeners')) {
+        if (\method_exists($this, 'attachDefaultListeners')) {
             $this->attachDefaultListeners($eventManager);
         }
     }
 
     /**
      * @param  string|EventInterface $event 'app.start' 'app.stop'
-     * @param  mixed|string $target
-     * @param  array|mixed $args
+     * @param  mixed|string          $target
+     * @param  array|mixed           $args
      * @return mixed
      */
     public function trigger($event, $target = null, array $args = [])

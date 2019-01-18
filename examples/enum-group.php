@@ -9,7 +9,7 @@
 use Inhere\Event\EventManager;
 use Inhere\Event\Examples\EnumGroupListener;
 
-require dirname(__DIR__) . '/tests/boot.php';
+require dirname(__DIR__) . '/test/boot.php';
 
 $em = new EventManager();
 

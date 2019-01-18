@@ -6,15 +6,17 @@
  * Time: 下午10:35
  */
 
-include dirname(__DIR__) . '/tests/boot.php';
+include dirname(__DIR__) . '/test/boot.php';
 
-$myEvent = new class extends \Inhere\Event\Event {
+$myEvent = new class extends \Inhere\Event\Event
+{
     protected $name = 'test';
 
     public $prop = 'value';
 };
 
-$myListener = new class {
+$myListener = new class
+{
     public function __invoke(\Inhere\Event\EventInterface $event)
     {
         echo "handle the event {$event->getName()}\n";
