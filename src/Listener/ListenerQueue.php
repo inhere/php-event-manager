@@ -15,7 +15,7 @@ namespace Inhere\Event\Listener;
 class ListenerQueue implements \IteratorAggregate, \Countable
 {
     /**
-     * 对象存储器 - 监听器实例存储
+     * 对象存储器
      * @var \SplObjectStorage
      */
     private $store;
@@ -54,7 +54,7 @@ class ListenerQueue implements \IteratorAggregate, \Countable
         if (!$this->has($listener)) {
             // Compute the internal priority as an array. 计算内部优先级为一个数组。
             // @see http://php.net/manual/zh/splpriorityqueue.compare.php#93999
-            $priorityData = [(int)$priority, $this->counter--];
+            $priorityData = [$priority, $this->counter--];
 
             $this->store->attach($listener, $priorityData);
             $this->queue->insert($listener, $priorityData);

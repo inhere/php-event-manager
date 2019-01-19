@@ -26,22 +26,27 @@ class Event implements EventInterface, \Serializable
     protected $params = [];
 
     /**
-     * @var null|string|mixed
+     * @var null|string|mixed Event target
      */
     protected $target;
 
     /**
-     * 停止事件关联的监听器队列的执行
+     * Stop execution of the listener queue associated with the event
      * @var boolean
      */
     protected $stopped = false;
 
+    public static function create(string $name = '', array $params = []): self
+    {
+        return new static($name, $params);
+    }
+
     /**
-     * @param string|null $name
-     * @param array       $params
+     * @param string $name
+     * @param array  $params
      * @throws \InvalidArgumentException
      */
-    public function __construct(string $name = null, array $params = [])
+    public function __construct(string $name = '', array $params = [])
     {
         if ($name) {
             $this->setName($name);

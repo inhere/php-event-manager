@@ -54,7 +54,7 @@ class EventManager implements EventManagerInterface
     public function __construct(EventManagerInterface $parent = null)
     {
         if ($parent) {
-            $this->parent = $parent;
+            $this->setParent($parent);
         }
 
         $this->basicEvent = new Event;
@@ -89,13 +89,14 @@ class EventManager implements EventManagerInterface
 
     /**
      * Detaches a listener from an event
-     * @param string   $event the event to attach too
-     * @param callable $callback a callable function
+     * @param string         $event the event to attach too
+     * @param callable|mixed $callback a callable function
      * @return bool true on success false on failure
      */
-    public function detach($event, $callback)
+    public function detach($event, $callback): bool
     {
-        return $this->removeListener($callback, $event);
+        $this->removeListener($callback, $event);
+        return true;
     }
 
     /**
@@ -631,7 +632,7 @@ class EventManager implements EventManagerInterface
     /**
      * @return EventManager
      */
-    public function getParent(): EventManagerInterface
+    public function getParent(): ?EventManagerInterface
     {
         return $this->parent;
     }

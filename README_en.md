@@ -459,15 +459,17 @@ handle the event 'app.stop' on the: Inhere\Event\Examples\AppListener::stop
 
 Support for using the event wildcard `*` to listen for a group of related events, divided into two.
 
-1. `*` 全局的事件通配符。直接对 `*` 添加监听器(`$em->attach('*', 'global_listener')`), 此时所有触发的事件都会被此监听器接收到。
-2. `{prefix}.*` 指定分组事件的监听。eg `$em->attach('db.*', 'db_listener')`, 此时所有触发的以 `db.` 为前缀的事件(eg `db.query` `db.connect`)都会被此监听器接收到。
+1. `*` global event wildcard。add listener for `*` (`$em->attach('*', 'global_listener')`), At this point all triggered events will be received by this listener.
+2. `{prefix}.*` Specify listeners for grouping events. eg `$em->attach('db.*', 'db_listener')`, At this point, all events triggered by `db.` (eg `db.query` `db.connect`) will be received by this listener.
 
-> 当然，你在事件到达监听器前停止了本次事件的传播`$event->stopPropagation(true);`，就不会被后面的监听器接收到了。
+> Of course, you stop the propagation of this event `$event->stopPropagation(true);` 
+> before the event reaches the listener, and it will not be received by subsequent listeners.
 
-示例，在上面的组事件监听器改下，添加一个 `app.*` 的事件监听。
+For example, in the above group event listener, add an event listener for `app.*`.
 
 ```php
-// AppListener 新增一个方法
+// AppListener 
+// add new method to listen all events
 class AppListener
 {
     // ...
