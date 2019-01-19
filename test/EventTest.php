@@ -70,6 +70,15 @@ class EventTest extends TestCase
         $e->stopPropagation(true);
         $this->assertTrue($e->isPropagationStopped());
 
+        $ne = Event::create();
+        $this->assertSame('', $ne->getName());
+
+        // serialize
+        $data = $e->serialize();
+        // unserialize
+        $ne->unserialize($data);
+        $this->assertSame('test', $ne->getName());
+
         $e->clearParams();
         $this->assertEmpty($e->getParams());
     }

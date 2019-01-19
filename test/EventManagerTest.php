@@ -23,19 +23,34 @@ class EventManagerTest extends TestCase
     public function testCreate()
     {
         $em = new EventManager();
-
         $this->assertInstanceOf(EventManagerInterface::class, $em);
+        $this->assertEmpty($em->getParent());
+        $this->assertNotEmpty($em->getBasicEvent());
+        $this->assertSame(0, $em->countEvents());
+
+        $em->setBasicEvent(new Event('new'));
+        $this->assertNotEmpty($evt = $em->getBasicEvent());
+        $this->assertSame('new', $evt->getName());
+
+        $em1 = new EventManager();
+        $em1->setParent($em);
+
+        $this->assertNotEmpty($em1->getParent());
     }
 
     public function testAttach()
     {
         $em = new EventManager();
-        $em->attach('test', new ExamHandler());
+        $l1 = new ExamHandler();
+        $em->attach('test', $l1);
         $em->attach('test', function () {
             //
         });
 
         $this->assertCount(2, $em->getListeners('test'));
+
+        $em->detach('test', $l1);
+        $this->assertCount(1, $em->getListeners('test'));
     }
 
     public function testPriority()
